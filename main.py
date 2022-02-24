@@ -1,11 +1,10 @@
-from re import search
-from urllib import request
-from django.http import QueryDict
 import pycountry
 from pytrends.request import TrendReq
 import gtab
 import matplotlib.pyplot as plt
 import pandas as pd
+
+from api_request import GoogleRequests
 
 plt.style.use('ggplot')
 pytrends = TrendReq(hl='en-US', tz=360, timeout=(10,25), retries=2, backoff_factor=0.1)
@@ -29,11 +28,6 @@ TIMEFRAMES = ['today 12-m', 'today 3-m', 'today 1-m']
 GPROP = ''
 KW = []
 
-def interest_over_time(country_code):
-    pytrends.build_payload(KW, CAT, TIMEFRAMES[2], country_code, GPROP)
-    data = pytrends.interest_over_time()
-    return data
-
 def arrange_data(country_code, word_list):
     pytrends.build_payload(word_list, CAT, TIMEFRAMES[2], country_code, GPROP)
     #plt.figure()
@@ -46,36 +40,6 @@ def arrange_data(country_code, word_list):
         ax.legend()
 
     return df
-
-def interest_per_region(country_code):
-    pytrends.build_payload(KW, CAT, TIMEFRAMES[2], country_code, GPROP)
-    data = pytrends.interest_by_region(resolution='COUNTRY', inc_low_vol=True, inc_geo_code=True)
-    data = data.sort_values(by=KW, ascending=False)
-    return data
-
-def related_queries(country_code):
-    pytrends.build_payload(KEYWORDS, CAT, TIMEFRAMES[2], country_code, GPROP)
-    data = pytrends.related_queries()
-
-    for kw in KEYWORDS:
-        print(kw + ' top queries: ')
-        if data[kw]['top'] is None:
-            print('There is not enough data')
-        else:
-            print(data[kw]['top'].head(9))
-            for index, row in data[kw]['top'].iterrows():
-                QUERY_ARR.append(row['query'])
-
-        print(kw + ' rising queries: ')
-        if data[kw]['rising'] is None:
-            print('There is not enough data')
-        else:
-            print(data[kw]['rising'].head(9))
-        print('___________')
-
-def country_trends(country_code):
-    data = pytrends.trending_searches(country_code)
-    print(data)
 
 def request_window(search_arr):
     request_arr = []
@@ -91,23 +55,19 @@ def request_window(search_arr):
 def plot_data(data):
     plt.figure()
     df.plot()
-    print("shit should be plotted")
     plt.show()
 
-# for kw in KEYWORDS:
-#     KW.append(kw)
-#     over_time_interest = interest_over_time(country_code)
-#     per_region_interest = interest_per_region(country_code)
-#     print(over_time_interest)
-#     print(per_region_interest)
-#     KW.pop()
+# SEARCH_ARR = [*KEYWORDS, *QUERY_ARR]
+# #plot_absolute_comparison(country_code, KEYWORDS)
+# # get_absolute_data(country_code)
+# request_window(SEARCH_ARR)
+# plot_data(df)
 
-related_queries(country_code)
-# country_trends(country)
-# print(QUERY_ARR)
-SEARCH_ARR = [*KEYWORDS, *QUERY_ARR]
-#plot_absolute_comparison(country_code, KEYWORDS)
-# get_absolute_data(country_code)
-request_window(SEARCH_ARR)
-plot_data(df)
-
+google_requests = GoogleRequests(KEYWORDS, CAT, TIMEFRAMES, country_code, GPROP)
+# google_requests.interest_over_time()
+# google_requests.interest_per_region()
+# google_requests.country_trends()
+data = google_requests.search_array()
+#print(data)
+request_window(data)
+plot_data(data)
