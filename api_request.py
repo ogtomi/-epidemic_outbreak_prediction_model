@@ -57,7 +57,9 @@ class GoogleRequests:
                 print('There is not enough data')
             else:
                 print(data[kw]['rising'].head(9))
-            print('___________')
+                for index, row in data[kw]['top'].iterrows():
+                    self.querry_arr.append(row['query'])
+            #print('___________')
     
     def country_trends(self):
         data = self.pytrends.trending_searches(self.underscored_countryname)
