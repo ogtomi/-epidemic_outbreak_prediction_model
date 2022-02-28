@@ -7,9 +7,6 @@ from filter_data import correlation_filter
 
 plt.style.use('ggplot')
 
-def country_to_code(country):
-    return pycountry.countries.get(name=str(country)).alpha_2
-
 def get_anchortime():
     #"2021-01-01 2022-01-01"
     today_date = date.today()
@@ -24,10 +21,9 @@ TIMEFRAMES = ['today 12-m', 'today 3-m', 'today 1-m']
 GPROP = ''
 ANCHOR_TIME = get_anchortime()
 
-country_code = country_to_code(COUNTRY)
-
-google_requests = GoogleRequests(KEYWORDS, CAT, TIMEFRAMES, country_code, GPROP, ANCHOR_TIME)
+google_requests = GoogleRequests(KEYWORDS, CAT, TIMEFRAMES, COUNTRY, GPROP, ANCHOR_TIME)
 
 data = google_requests.request_window()
+print(data)
 data = correlation_filter(data, KEYWORDS)
-
+print(data)

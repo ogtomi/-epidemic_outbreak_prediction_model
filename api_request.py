@@ -1,25 +1,31 @@
-from re import search
+import pycountry
 from pytrends.request import TrendReq
 import gtab
 import matplotlib.pyplot as plt
 import pandas as pd
 
 class GoogleRequests:
-    def __init__(self, keywords_arr, cat, timeframes, country_code, gprop, anchor_time):
+    def __init__(self, keywords_arr, cat, timeframes, country, gprop, anchor_time):
         self.keywords_arr = keywords_arr
         self.cat = cat
         self.timeframes = timeframes
-        self.country_code = country_code
+        self.country = country
         self.gprop = gprop
         self.anchor_time = anchor_time
         self.querry_arr = []
+        self.trends_arr = []
+        self.country_code = self.country_to_code(self.country)
+        self.underscored_countryname = country.replace(" ", "_")
 
         self.pytrends = TrendReq(hl='en-US', tz=360, timeout=(10,25), retries=2, backoff_factor=0.1)
         self.t = gtab.GTAB()
-        self.t.set_options(pytrends_config={"geo": country_code, "timeframe": self.anchor_time})
+        self.t.set_options(pytrends_config={"geo": self.country_code, "timeframe": self.anchor_time})
         #self.t.create_anchorbank(verbose=True)
         self.df = pd.DataFrame()
 
+    def country_to_code(self, country):
+        return pycountry.countries.get(name=str(country)).alpha_2
+    
     def interest_over_time(self, word_list):
         self.pytrends.build_payload(word_list, self.cat, self.timeframes[0], self.country_code, self.gprop)
         data = self.pytrends.interest_over_time()
@@ -34,7 +40,7 @@ class GoogleRequests:
         return data
     
     def related_queries(self):
-        self.pytrends.build_payload(self.keywords_arr, self.cat, self.timeframes[2], self.country_code, self.gprop)
+        self.pytrends.build_payload(self.keywords_arr, self.cat, self.timeframes[0], self.country_code, self.gprop)
         data = self.pytrends.related_queries()
 
         for kw in self.keywords_arr:
@@ -54,12 +60,14 @@ class GoogleRequests:
             print('___________')
     
     def country_trends(self):
-        data = self.pytrends.trending_searches(self.country_code)
-        print(data)
+        data = self.pytrends.trending_searches(self.underscored_countryname)
+        for index, row in data.iterrows():
+            self.trends_arr.append(row.values[0])
     
     def search_array(self):
         self.related_queries()
-        return [*self.keywords_arr, *self.querry_arr]
+        self.country_trends()
+        return [*self.keywords_arr, *self.querry_arr, *self.trends_arr]
     
     def arrange_data(self, word_list):
         ax = plt.subplot2grid((1, 1), (0, 0), rowspan=1, colspan=1)
