@@ -5,29 +5,31 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 class GoogleRequests:
-    def __init__(self, keywords_arr, cat, timeframes, country_code, gprop):
+    def __init__(self, keywords_arr, cat, timeframes, country_code, gprop, anchor_time):
         self.keywords_arr = keywords_arr
         self.cat = cat
         self.timeframes = timeframes
         self.country_code = country_code
         self.gprop = gprop
+        self.anchor_time = anchor_time
         self.querry_arr = []
 
         self.pytrends = TrendReq(hl='en-US', tz=360, timeout=(10,25), retries=2, backoff_factor=0.1)
         self.t = gtab.GTAB()
-        self.t.set_options(pytrends_config={"geo": country_code, "timeframe": "2021-01-01 2022-01-01"})
+        self.t.set_options(pytrends_config={"geo": country_code, "timeframe": self.anchor_time})
+        #self.t.create_anchorbank(verbose=True)
         self.df = pd.DataFrame()
 
-    def interest_over_time(self):
-        self.pytrends.build_payload(self.keywords_arr, self.cat, self.timeframes[2], self.country_code, self.gprop)
+    def interest_over_time(self, word_list):
+        self.pytrends.build_payload(word_list, self.cat, self.timeframes[0], self.country_code, self.gprop)
         data = self.pytrends.interest_over_time()
         print(data)
         return data
 
-    def interest_per_region(self):
-        self.pytrends.build_payload(self.keywords_arr, self.cat, self.timeframes[2], self.country_code, self.gprop)
+    def interest_per_region(self, word_list):
+        self.pytrends.build_payload(word_list, self.cat, self.timeframes[0], self.country_code, self.gprop)
         data = self.pytrends.interest_by_region(resolution='COUNTRY', inc_low_vol=True, inc_geo_code=True)
-        data = data.sort_values(by=self.keywords_arr, ascending=False)
+        #data = data.sort_values(by=self.keywords_arr, ascending=False)
         print(data)
         return data
     
@@ -60,8 +62,6 @@ class GoogleRequests:
         return [*self.keywords_arr, *self.querry_arr]
     
     def arrange_data(self, word_list):
-        self.pytrends.build_payload(self.keywords_arr, self.cat, self.timeframes[2], self.country_code, self.gprop)
-        #plt.figure()
         ax = plt.subplot2grid((1, 1), (0, 0), rowspan=1, colspan=1)
 
         for kw in word_list:
@@ -80,6 +80,8 @@ class GoogleRequests:
             
             if i % 5 == 0:
                 self.arrange_data(request_arr)
+                #self.interest_over_time(request_arr)
+                #self.interest_per_region(request_arr)
                 request_arr = []
         
         return self.df
