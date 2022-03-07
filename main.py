@@ -26,15 +26,15 @@ PATH_TO_CSV = 'covid_deaths_usafacts.csv'
 
 google_requests = GoogleRequests(KEYWORDS, CAT, TIMEFRAMES, COUNTRY, GPROP, ANCHOR_TIME)
 
-#data = google_requests.request_window()
-#data = correlation_filter(data, KEYWORDS)
+data = google_requests.request_window()
+data = correlation_filter(data, KEYWORDS)
 
 covid_data = get_mean_from_csv(PATH_TO_CSV)
 weekly_covid_data = convert_to_weekly(covid_data)
 
-#frames = [data, weekly_covid_data]
-#esult_array = pd.concat(frames)
-#result_array = correlation_filter(result_array, 'covid_mean')
+frames = [data, weekly_covid_data]
+result_array = pd.concat(frames)
+result_array = correlation_filter(result_array, 'covid_mean')
 #print(data)
 
-print(weekly_covid_data)
+print(result_array)
