@@ -1,10 +1,11 @@
 import pycountry
+import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import date, timedelta
 
 from api_request import GoogleRequests
 from filter_data import correlation_filter
-from process_data import get_mean_from_csv
+from process_data import convert_to_weekly, get_mean_from_csv
 
 plt.style.use('ggplot')
 
@@ -26,7 +27,14 @@ PATH_TO_CSV = 'covid_deaths_usafacts.csv'
 google_requests = GoogleRequests(KEYWORDS, CAT, TIMEFRAMES, COUNTRY, GPROP, ANCHOR_TIME)
 
 #data = google_requests.request_window()
-covid_data = get_mean_from_csv(PATH_TO_CSV)
-#print(data)
 #data = correlation_filter(data, KEYWORDS)
-print(covid_data)
+
+covid_data = get_mean_from_csv(PATH_TO_CSV)
+weekly_covid_data = convert_to_weekly(covid_data)
+
+#frames = [data, weekly_covid_data]
+#esult_array = pd.concat(frames)
+#result_array = correlation_filter(result_array, 'covid_mean')
+#print(data)
+
+print(weekly_covid_data)
