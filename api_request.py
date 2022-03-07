@@ -57,7 +57,7 @@ class GoogleRequests:
                 print('There is not enough data')
             else:
                 print(data[kw]['rising'].head(9))
-                for index, row in data[kw]['top'].iterrows():
+                for index, row in data[kw]['rising'].iterrows():
                     self.querry_arr.append(row['query'])
             #print('___________')
     
@@ -83,7 +83,7 @@ class GoogleRequests:
     def request_window(self):
         request_arr = []
         search_arr = self.search_array()
-        plt.figure()
+        #plt.figure()
 
         for i in range(len(search_arr)):
             request_arr.append(search_arr[i])
