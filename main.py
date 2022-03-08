@@ -14,7 +14,8 @@ def get_anchortime():
     today_date = date.today()
     past_date = today_date - timedelta(days=365)
     anchor_time = str(past_date) + " " + str(today_date)
-    return anchor_time
+    #return anchor_time
+    return "2020-01-20 2022-02-28"
 
 COUNTRY = "united states"
 KEYWORDS = ['stomach pain']
@@ -33,8 +34,9 @@ covid_data = get_mean_from_csv(PATH_TO_CSV)
 weekly_covid_data = convert_to_weekly(covid_data)
 
 frames = [data, weekly_covid_data]
-result_array = pd.concat(frames)
-result_array = correlation_filter(result_array, 'covid_mean')
-#print(data)
+result_array = pd.concat(frames, axis=1)
+result_array = correlation_filter(result_array, ['covid_mean'])
 
+#print(data)
+#print(weekly_covid_data)
 print(result_array)

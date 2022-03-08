@@ -14,18 +14,15 @@ def get_mean_from_csv(PATH_TO_FILE):
     return average_column
 
 def convert_to_weekly(data):
-    # data.set_axis(['covid_mean'], axis='columns', inplace=True)
-    # data.index.name = 'Date'
-    # data.reset_index(inplace=True)
-    
-    # data.set_index('Date', inplace=True)
-    
-    # data_resampled = data.resample('W', label='left')
+    offset = pd.offsets.DateOffset(-1)
+
+    data.set_axis(['covid_mean'], axis='columns', inplace=True)
     data_modified = data.reset_index()
-    data_modified = data_modified.assign(Weeks = data_modified['index'].drop(columns = 'index'))
+    data_modified = data_modified.assign(date = data_modified['index'].drop(columns = 'index'))
 
-    data_modified['Weeks'] = data_modified['Weeks'].astype('datetime64[ns]')
+    data_modified['date'] = data_modified['date'].astype('datetime64[ns]')
 
-    data_weekly = data_modified.resample('W-mon', label='left', closed='left', on='Weeks').mean()
+    data_weekly = data_modified.resample('W-mon', label='left', closed='left', on='date', loffset=offset).mean()
+    data_weekly.drop(index=('2020-01-19'), inplace=True)
 
     return data_weekly
