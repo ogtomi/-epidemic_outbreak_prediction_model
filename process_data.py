@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
 
 def get_mean_from_csv(PATH_TO_FILE):
     data = pd.read_csv(PATH_TO_FILE)
@@ -26,3 +27,22 @@ def convert_to_weekly(data):
     data_weekly.drop(index=('2020-01-19'), inplace=True)
 
     return data_weekly
+
+def preprocess_data(df, y_col):
+    df = df.fillna(df.mean()) # fill na / nan values with mean value
+
+    sc = StandardScaler()
+
+    X = df.drop(y_col, axis=1) # splitting data into X and y
+    X = sc.fit_transform(X) # scaling by removing the mean and dividing by standard deviation so that there's no feature bias
+    y = df[y_col]
+
+    #X = shuffle(X)
+
+    return X, y
+
+def plot_result(X, y, X_test, y_pred):
+    plt.figure()
+    plt.scatter(x=list(range(len(X))), y=y, color="blue")
+    plt.scatter(x=list(range(len(X_test))), y=y_pred, color="red")
+    plt.show()
