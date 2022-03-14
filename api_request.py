@@ -72,13 +72,15 @@ class GoogleRequests:
         return [*self.keywords_arr, *self.querry_arr, *self.trends_arr]
     
     def arrange_data(self, word_list):
-        ax = plt.subplot2grid((1, 1), (0, 0), rowspan=1, colspan=1)
+        #ax = plt.subplot2grid((1, 1), (0, 0), rowspan=1, colspan=1)
 
         for kw in word_list:
             kw_query = self.t.new_query(kw)
             self.df[kw] = kw_query.max_ratio
             #ax.plot(kw_query.max_ratio, label=kw)
             #ax.legend()
+        
+        return self.df
     
     def request_window(self):
         request_arr = []

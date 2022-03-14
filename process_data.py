@@ -33,13 +33,16 @@ def preprocess_data(df, y_col):
 
     sc = StandardScaler()
 
-    X = df.drop(y_col, axis=1) # splitting data into X and y
-    X = sc.fit_transform(X) # scaling by removing the mean and dividing by standard deviation so that there's no feature bias
-    y = df[y_col]
+    if y_col in df.columns:
+        X = df.drop(y_col, axis=1) # splitting data into X and y
+        X = sc.fit_transform(X) # scaling by removing the mean and dividing by standard deviation so that there's no feature bias
+        y = df[y_col]
+
+        return X, y
+    
+    return sc.fit_transform(df)
 
     #X = shuffle(X)
-
-    return X, y
 
 def plot_result(X, y, X_test, y_pred):
     plt.figure()

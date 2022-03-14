@@ -30,10 +30,3 @@ def gradient_descent(x, y, w, b, learning_rate, epochs):
 
 def predict(X, w, b):
     return X.dot(w) + b # final form (takes w and b matrices from gradient function)
-
-def r2score(y_pred, y):
-    r = np.sum((y_pred - y) ** 2)
-    t = np.sum((y - y.mean()) ** 2)
-    
-    r2 = 1 - (r / t)
-    return r2
