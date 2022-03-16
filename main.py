@@ -26,7 +26,7 @@ KEYWORDS = ['stomach pain']
 CAT = '0'
 TIMEFRAMES = ['today 12-m', 'today 3-m', 'today 1-m']
 GPROP = ''
-ANCHOR_TIME_MODEL = get_anchortime(1)
+ANCHOR_TIME_MODEL = get_anchortime(1) 
 ANCHOR_TIME_PREDICT = get_anchortime(0)
 PATH_TO_CSV = 'covid_confirmed_usafacts.csv'
 VALUE = 'covid_mean'
@@ -46,11 +46,9 @@ frames = [model_data, weekly_covid_data]
 result_array = pd.concat(frames, axis=1)
 result_array = correlation_filter(result_array, [VALUE])
 
-
 # FINAL WORD BANK
 word_bank = result_array.drop(VALUE, axis=1)
 word_bank = word_bank.columns.values.tolist()
-
 
 # BUILDING THE MODEL 
 X_model, y_model = preprocess_data(result_array, VALUE)

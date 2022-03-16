@@ -76,9 +76,12 @@ class GoogleRequests:
 
         for kw in word_list:
             kw_query = self.t.new_query(kw)
-            self.df[kw] = kw_query.max_ratio
-            #ax.plot(kw_query.max_ratio, label=kw)
-            #ax.legend()
+            try:
+                self.df[kw] = kw_query.max_ratio
+                #ax.plot(kw_query.max_ratio, label=kw)
+                #ax.legend()
+            except AttributeError:
+                pass
         
         return self.df
     

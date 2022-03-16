@@ -24,7 +24,8 @@ def gradient_descent(x, y, w, b, learning_rate, epochs):
         epoch_arr.append(epoch)
         
         if (epoch % (epochs / 10) == 0):
-            print("Cost at epoch", epoch, "is:", cost)
+            #print("Cost at epoch", epoch, "is:", cost)
+            print("EPOCH: ", epoch)
         
     return w, b, cost_list, epoch_arr
 
