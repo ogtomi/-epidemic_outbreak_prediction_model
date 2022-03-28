@@ -8,10 +8,11 @@ def get_mean_from_csv(PATH_TO_FILE):
     data = pd.read_csv(PATH_TO_FILE)
     data = data.drop(columns=['countyFIPS', 'StateFIPS'])
     average_column = data.mean(axis=0).to_frame()
-    #plt.figure()
-    #average_column.plot()
-    #plt.show()
+    average_column = average_column.diff()
 
+    # plt.figure()
+    # average_column.plot()
+    # plt.show()
     return average_column
 
 def convert_to_weekly(data):
@@ -49,3 +50,5 @@ def plot_result(X, y, X_test, y_pred):
     plt.scatter(x=list(range(len(X))), y=y, color="blue")
     plt.scatter(x=list(range(len(X_test))), y=y_pred, color="red")
     plt.show()
+
+get_mean_from_csv('covid_confirmed_usafacts.csv')
