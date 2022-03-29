@@ -1,4 +1,3 @@
-import pycountry
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -6,8 +5,8 @@ from datetime import date, timedelta
 
 from api_request import GoogleRequests
 from filter_data import correlation_filter
-from models import gradient_descent, predict
-from process_data import convert_to_weekly, get_mean_from_csv, plot_result, preprocess_data
+from models import estimate
+from process_data import convert_to_weekly, get_mean_from_csv
 
 plt.style.use('ggplot')
 
@@ -34,7 +33,6 @@ VALUE = 'covid_mean'
 google_requests = GoogleRequests(KEYWORDS, CAT, TIMEFRAMES, COUNTRY, GPROP, ANCHOR_TIME_MODEL)
 predict_requests = GoogleRequests(KEYWORDS, CAT, TIMEFRAMES, COUNTRY, GPROP, ANCHOR_TIME_PREDICT)
 
-
 # GETTING DATA FROM GOOGLE API AND PROCESSING IT
 model_data = google_requests.request_window()
 model_data = correlation_filter(model_data, KEYWORDS)
@@ -51,22 +49,4 @@ word_bank = result_array.drop(VALUE, axis=1)
 word_bank = word_bank.columns.values.tolist()
 
 # BUILDING THE MODEL 
-X_model, y_model = preprocess_data(result_array, VALUE)
-w, b, cost_list, epoch_list = gradient_descent(x=X_model, y=y_model, w=np.zeros(X_model.shape[1]), b=0, learning_rate=0.001, epochs=10000)
-y_model_prediction = predict(X_model, w, b)
-
-plot_result(X_model, y_model, X_model, y_model_prediction)
-
-# DISEASE PREDICTION
 X_predict = predict_requests.arrange_data(word_bank)
-X_predict = preprocess_data(X_predict, VALUE)
-
-y_predict = predict(X_predict, w, b)
-
-plt.figure()
-plt.scatter(x=list(range(len(X_model))), y=y_model_prediction, color="blue")
-plt.show()
-
-print(result_array)
-print(w)
-print(b)
