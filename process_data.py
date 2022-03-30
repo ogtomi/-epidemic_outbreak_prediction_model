@@ -1,18 +1,20 @@
-from dataclasses import dataclass
+from datetime import timedelta
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
+from datetime import date, timedelta
 
 def get_mean_from_csv(PATH_TO_FILE):
     data = pd.read_csv(PATH_TO_FILE)
     data = data.drop(columns=['countyFIPS', 'StateFIPS'])
     average_column = data.mean(axis=0).to_frame()
     average_column = average_column.diff()
-
-    # plt.figure()
-    # average_column.plot()
-    # plt.show()
+    
+    print(average_column)
+    plt.figure()
+    average_column.plot()
+    plt.show()
     return average_column
 
 def convert_to_weekly(data):
@@ -27,6 +29,9 @@ def convert_to_weekly(data):
     data_weekly = data_modified.resample('W-mon', label='left', closed='left', on='date', loffset=offset).mean()
     data_weekly.drop(index=('2020-01-19'), inplace=True)
 
+    plt.figure()
+    data_weekly.plot()
+    plt.show()
     return data_weekly
 
 def preprocess_data(df, y_col):
@@ -51,4 +56,17 @@ def plot_result(X, y, X_test, y_pred):
     plt.scatter(x=list(range(len(X_test))), y=y_pred, color="red")
     plt.show()
 
-get_mean_from_csv('covid_confirmed_usafacts.csv')
+def predict_dataframe(values):
+    next_date = date.today() + timedelta(days= 7)
+    past_date = next_date - timedelta(days=365)
+
+    idx = pd.date_range(past_date, periods=len(values), freq="W")
+    datetime_series = pd.Series(range(len(idx)), index=idx)
+
+    df = pd.DataFrame(values)
+    df['date'] = datetime_series.index
+    
+    df.reset_index()
+    df.set_index(['date'], inplace=True)
+
+    return df
