@@ -15,13 +15,13 @@ def ewls(data, t, word_count, y_data):
     R = 0
     p = 0
     #t = int(len(data) / word_count)
-    exp_lambda = 0.25
+    exp_lambda = 0.26
     Y_array = []
 
-    for i in range(ORDER, t + ORDER):
+    for i in range(t - 1):
         w = pow(exp_lambda, i)
-        R += w * arx(t - i, data, word_count) @ arx(t - i, data, word_count).T
-        p += w * y_data[t - i] * arx(t - i, data, word_count)
+        R += w * arx(t - i - 1, data, word_count) @ arx(t - i - 1, data, word_count).T
+        p += w * y_data[t - i] * arx(t - i - 1, data, word_count)
 
         if np.linalg.det(R) != 0:
             ewls_estimator = np.linalg.inv(R) @ p
