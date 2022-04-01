@@ -2,7 +2,7 @@ from tkinter import Y
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 from api_request import GoogleRequests
 from filter_data import correlation_filter
@@ -11,28 +11,37 @@ from process_data import convert_to_weekly, get_data_for_comparison, get_mean_fr
 
 plt.style.use('ggplot')
 
-def get_anchortime(get_bank):
-    #"2021-01-01 2022-01-01"
-    today_date = date.today()
-    past_date = today_date - timedelta(days=365)
-    anchor_time = str(past_date) + " " + str(today_date)
-
-    if get_bank == True:
+def get_anchortime(get_time):
+    if get_time == 0:
         return "2020-01-20 2022-02-28"
-    return anchor_time
+
+    if get_time == 1:
+        # last_date = datetime.strptime("2022-02-27" , "%Y-%m-%d").date()
+        # first_date = last_date - timedelta(days=365)
+        # return str(first_date) + " " + str(last_date)
+        return "2021-02-28 2022-02-27"
+    
+    if get_time == 2:
+        #"2021-01-01 2022-01-01"
+        today_date = date.today()
+        past_date = today_date - timedelta(days=365)
+        anchor_time = str(past_date) + " " + str(today_date)
+        return anchor_time
 
 COUNTRY = "united states"
 KEYWORDS = ['stomach pain', 'stomach pain covid', 'nausea']
 CAT = '0'
 TIMEFRAMES = ['today 12-m', 'today 3-m', 'today 1-m']
 GPROP = ''
-ANCHOR_TIME_MODEL = get_anchortime(1) 
-ANCHOR_TIME_PREDICT = get_anchortime(0)
+ANCHOR_TIME_MODEL = get_anchortime(0) 
+ANCHOR_TIME_COMPARISON = get_anchortime(1)
+ANCHOR_TIME_PREDICT = get_anchortime(2)
 PATH_TO_CSV = 'covid_confirmed_usafacts.csv'
 VALUE = 'covid_mean'
 
 # google_requests = GoogleRequests(KEYWORDS, CAT, TIMEFRAMES, COUNTRY, GPROP, ANCHOR_TIME_MODEL)
-predict_requests = GoogleRequests(KEYWORDS, CAT, TIMEFRAMES, COUNTRY, GPROP, ANCHOR_TIME_PREDICT)
+# predict_requests = GoogleRequests(KEYWORDS, CAT, TIMEFRAMES, COUNTRY, GPROP, ANCHOR_TIME_PREDICT)
+compare_requests = GoogleRequests(KEYWORDS, CAT, TIMEFRAMES, COUNTRY, GPROP, ANCHOR_TIME_COMPARISON)
 
 # GETTING DATA FROM GOOGLE API AND PROCESSING IT
 # model_data = google_requests.request_window()
@@ -52,21 +61,31 @@ weekly_covid_array = weekly_covid_data.to_numpy()
 # word_bank = word_bank.columns.values.tolist()
 
 # BUILDING THE MODEL 
-X_predict = predict_requests.arrange_data(KEYWORDS) # ----> SWAP TO WORD_BANK
-vector_data = make_vector(X_predict)
-Y_predict = ewls(vector_data, len(X_predict.index), len(KEYWORDS), weekly_covid_array) # ----> COUNT ROWS AFTER
+# X_predict = predict_requests.arrange_data(KEYWORDS) # ----> SWAP TO WORD_BANK
+X_compare = compare_requests.arrange_data(KEYWORDS)
+print("COMPARE")
+print(X_compare)
+print(len(X_compare))
+#vector_data = make_vector(X_predict)
+vector_data_compare = make_vector(X_compare)
+print(len(vector_data_compare))
+
+#Y_predict = ewls(vector_data, len(X_predict.index), len(KEYWORDS), weekly_covid_array) # ----> COUNT ROWS AFTER
+Y_compare = ewls(vector_data_compare, len(X_compare.index), len(KEYWORDS), weekly_covid_array)
+print(len(Y_compare))
 
 # realtime_mode True = realtime False = according to CSV
-Y_predict_dataframe = predict_dataframe(Y_predict, False)
+# Y_predict_dataframe = predict_dataframe(Y_predict, True)
+Y_compare_dataframe = predict_dataframe(Y_compare, False)
 
 one_year_weekly_covid_data = get_data_for_comparison(weekly_covid_data)
-# PREDICT DATA FOR CSV COVID DATA
+
 print(one_year_weekly_covid_data)
-print(Y_predict_dataframe)
-print(len(Y_predict_dataframe.index))
+print(len(one_year_weekly_covid_data))
+print(Y_compare_dataframe)
+print(len(Y_compare_dataframe.index))
 
 plt.figure()
-plt.plot(Y_predict_dataframe)
+plt.plot(Y_compare_dataframe)
 plt.plot(one_year_weekly_covid_data)
-# plt.ylim(100)
 plt.show()

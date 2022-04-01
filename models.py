@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 # 4
-ORDER = 4
+ORDER = 5
 
 def arx(u, data, word_count):
     form = []
@@ -20,7 +20,7 @@ def ewls(data, t, word_count, y_data):
     exp_lambda = 0.425
     Y_array = []
 
-    for i in range(t - 1):
+    for i in range(t):
         w = pow(exp_lambda, i)
         R += w * arx(t - i - 1, data, word_count) @ arx(t - i - 1, data, word_count).T
         p += w * y_data[t - i] * arx(t - i - 1, data, word_count)
@@ -42,34 +42,3 @@ def make_vector(dataframe):
             vector_data.append(numpy_array[i][column])
     
     return np.array(vector_data, dtype='float')
-
-column = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
-
-# column1 = [[0], [1], [2], [3], [4], [5], [6], [7], [8], [9]]
-# column2 = [[10], [11], [12], [13], [14], [15], [16], [17], [18], [19]]
-
-# np_array = np.array(column)
-
-# df = pd.DataFrame(column1)
-# df2 = pd.DataFrame(column2)
-
-# df[1] = df2
-# vector = make_vector(df)
-# y_predict = ewls(np_array, len(np_array))
-# print(y_predict)
-# t = len(y_predict)
-
-# plt.figure()
-# plt.plot(y_predict)
-# plt.plot(np_array)
-# plt.show()
-
-# form = []
-# for i in range(4):
-#     form.append([column[i]])
-
-# print(form)
-
-# form = [[column[-1]], [column[-2]], [column[-3]], [column[-4]]]
-
-# print(form)

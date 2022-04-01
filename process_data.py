@@ -61,8 +61,6 @@ def predict_dataframe(values, realtime_mode):
     if realtime_mode == True:
         next_date = date.today() + timedelta(days= 7)
         past_date = next_date - timedelta(days=365)
-        print(type(next_date))
-        print(past_date)
     
     else:
         next_date = datetime.strptime("2022-02-27", "%Y-%m-%d").date()
