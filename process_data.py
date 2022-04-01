@@ -1,9 +1,10 @@
 from datetime import timedelta
+from optparse import Values
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 def get_mean_from_csv(PATH_TO_FILE):
     data = pd.read_csv(PATH_TO_FILE)
@@ -56,9 +57,16 @@ def plot_result(X, y, X_test, y_pred):
     plt.scatter(x=list(range(len(X_test))), y=y_pred, color="red")
     plt.show()
 
-def predict_dataframe(values):
-    next_date = date.today() + timedelta(days= 7)
-    past_date = next_date - timedelta(days=365)
+def predict_dataframe(values, realtime_mode):
+    if realtime_mode == True:
+        next_date = date.today() + timedelta(days= 7)
+        past_date = next_date - timedelta(days=365)
+        print(type(next_date))
+        print(past_date)
+    
+    else:
+        next_date = datetime.strptime("2022-02-27", "%Y-%m-%d").date()
+        past_date = next_date - timedelta(days=365)
 
     idx = pd.date_range(past_date, periods=len(values), freq="W")
     datetime_series = pd.Series(range(len(idx)), index=idx)
@@ -70,3 +78,12 @@ def predict_dataframe(values):
     df.set_index(['date'], inplace=True)
 
     return df
+
+def get_data_for_comparison(df):
+    next_date = datetime.strptime("2022-02-27", "%Y-%m-%d").date()
+    past_date = next_date - timedelta(days=365)
+
+    comparable_df = df.loc[str(past_date):]
+    
+    return comparable_df
+

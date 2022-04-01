@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+# 4
 ORDER = 4
 
 def arx(u, data, word_count):
@@ -15,7 +16,8 @@ def ewls(data, t, word_count, y_data):
     R = 0
     p = 0
     #t = int(len(data) / word_count)
-    exp_lambda = 0.26
+    # 0.425
+    exp_lambda = 0.425
     Y_array = []
 
     for i in range(t - 1):
