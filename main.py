@@ -11,15 +11,17 @@ from process_data import convert_to_weekly, get_data_for_comparison, get_mean_fr
 
 plt.style.use('ggplot')
 
+MODEL_ORDER = 4
+
 def get_anchortime(get_time):
     if get_time == 0:
         return "2020-01-20 2022-02-28"
 
     if get_time == 1:
-        # last_date = datetime.strptime("2022-02-27" , "%Y-%m-%d").date()
-        # first_date = last_date - timedelta(days=365)
-        # return str(first_date) + " " + str(last_date)
-        return "2021-02-28 2022-02-27"
+        last_date = datetime.strptime("2022-02-27" , "%Y-%m-%d").date()
+        first_date = last_date - timedelta(days=MODEL_ORDER * 7 + 365)
+        return str(first_date) + " " + str(last_date)
+        # return "2021-02-28 2022-02-27"
     
     if get_time == 2:
         #"2021-01-01 2022-01-01"
@@ -63,16 +65,12 @@ weekly_covid_array = weekly_covid_data.to_numpy()
 # BUILDING THE MODEL 
 # X_predict = predict_requests.arrange_data(KEYWORDS) # ----> SWAP TO WORD_BANK
 X_compare = compare_requests.arrange_data(KEYWORDS)
-print("COMPARE")
-print(X_compare)
 print(len(X_compare))
 #vector_data = make_vector(X_predict)
 vector_data_compare = make_vector(X_compare)
-print(len(vector_data_compare))
 
 #Y_predict = ewls(vector_data, len(X_predict.index), len(KEYWORDS), weekly_covid_array) # ----> COUNT ROWS AFTER
 Y_compare = ewls(vector_data_compare, len(X_compare.index), len(KEYWORDS), weekly_covid_array)
-print(len(Y_compare))
 
 # realtime_mode True = realtime False = according to CSV
 # Y_predict_dataframe = predict_dataframe(Y_predict, True)
@@ -80,8 +78,8 @@ Y_compare_dataframe = predict_dataframe(Y_compare, False)
 
 one_year_weekly_covid_data = get_data_for_comparison(weekly_covid_data)
 
-print(one_year_weekly_covid_data)
-print(len(one_year_weekly_covid_data))
+# print(one_year_weekly_covid_data)
+# print(len(one_year_weekly_covid_data))
 print(Y_compare_dataframe)
 print(len(Y_compare_dataframe.index))
 

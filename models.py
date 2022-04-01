@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 # 4
-ORDER = 5
+ORDER = 4
 
 def arx(u, data, word_count):
     form = []
@@ -20,7 +20,7 @@ def ewls(data, t, word_count, y_data):
     exp_lambda = 0.425
     Y_array = []
 
-    for i in range(t):
+    for i in range(ORDER, t):
         w = pow(exp_lambda, i)
         R += w * arx(t - i - 1, data, word_count) @ arx(t - i - 1, data, word_count).T
         p += w * y_data[t - i] * arx(t - i - 1, data, word_count)
@@ -29,6 +29,8 @@ def ewls(data, t, word_count, y_data):
             ewls_estimator = np.linalg.inv(R) @ p
             Y = arx(i, data, word_count).T @ ewls_estimator
             Y_array.append(Y[0][0])
+        else:
+            Y_array.append(np.mean(Y_array))
 
     return Y_array
 
