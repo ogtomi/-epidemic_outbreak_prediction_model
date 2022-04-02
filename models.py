@@ -17,10 +17,11 @@ def ewls(data, t, word_count, y_data):
     p = 0
     #t = int(len(data) / word_count)
     # 0.425
-    exp_lambda = 0.425
+    exp_lambda = 0.2
     Y_array = []
+    Y_array.append(0)
 
-    for i in range(ORDER, t):
+    for i in range(ORDER - 1, t - 1):
         w = pow(exp_lambda, i)
         R += w * arx(t - i - 1, data, word_count) @ arx(t - i - 1, data, word_count).T
         p += w * y_data[t - i] * arx(t - i - 1, data, word_count)
