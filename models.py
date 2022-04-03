@@ -3,35 +3,39 @@ import numpy as np
 import pandas as pd
 
 # 4
-ORDER = 4
+ORDER = 7
 
-def arx(u, data, word_count):
+def arx(y, u, data, word_count):
     form = []
+    form.append([y])
     for i in range(ORDER * word_count):
         form.append([data[u-i]])
     return np.array(form, dtype='float')
 
 def ewls(data, t, word_count, y_data):
+    j = 0
     Y = [[]]
     R = 0
     p = 0
     #t = int(len(data) / word_count)
     # 0.425
-    exp_lambda = 0.2
+    exp_lambda = 0.25
     Y_array = []
-    Y_array.append(0)
+    Y_array.append(1)
 
     for i in range(ORDER - 1, t - 1):
         w = pow(exp_lambda, i)
-        R += w * arx(t - i - 1, data, word_count) @ arx(t - i - 1, data, word_count).T
-        p += w * y_data[t - i] * arx(t - i - 1, data, word_count)
+        R += w * arx(Y_array[j], t - i - 1, data, word_count) @ arx(Y_array[j], t - i - 1, data, word_count).T
+        p += w * y_data[t - i] * arx(Y_array[j], t - i - 1, data, word_count)
 
         if np.linalg.det(R) != 0:
             ewls_estimator = np.linalg.inv(R) @ p
-            Y = arx(i, data, word_count).T @ ewls_estimator
+            Y = arx(Y_array[j], i, data, word_count).T @ ewls_estimator
             Y_array.append(Y[0][0])
         else:
             Y_array.append(np.mean(Y_array))
+
+        j += 1
 
     return Y_array
 
