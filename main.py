@@ -11,7 +11,7 @@ from process_data import convert_to_weekly, get_data_for_comparison, get_mean_fr
 
 plt.style.use('ggplot')
 
-MODEL_ORDER = 7
+MODEL_ORDER = 3
 
 def get_anchortime(get_time):
     if get_time == 0:
@@ -31,7 +31,7 @@ def get_anchortime(get_time):
         return anchor_time
 
 COUNTRY = "united states"
-KEYWORDS = ['stomach pain', 'stomach pain covid', 'nausea']
+KEYWORDS = ['nausea']
 CAT = '0'
 TIMEFRAMES = ['today 12-m', 'today 3-m', 'today 1-m']
 GPROP = ''
@@ -52,6 +52,8 @@ compare_requests = GoogleRequests(KEYWORDS, CAT, TIMEFRAMES, COUNTRY, GPROP, ANC
 covid_data = get_mean_from_csv(PATH_TO_CSV)
 weekly_covid_data = convert_to_weekly(covid_data)
 weekly_covid_array = weekly_covid_data.to_numpy()
+one_year_weekly_covid_data = get_data_for_comparison(weekly_covid_data)
+one_year_weekly_covid_data_array = one_year_weekly_covid_data.to_numpy()
 # print(weekly_covid_array)
 # frames = [model_data, weekly_covid_data]
 # result_array = pd.concat(frames, axis=1)
@@ -65,23 +67,29 @@ weekly_covid_array = weekly_covid_data.to_numpy()
 # BUILDING THE MODEL 
 # X_predict = predict_requests.arrange_data(KEYWORDS) # ----> SWAP TO WORD_BANK
 X_compare = compare_requests.arrange_data(KEYWORDS)
-print(len(X_compare))
-#vector_data = make_vector(X_predict)
-vector_data_compare = make_vector(X_compare)
+print(X_compare)
+# X_compare.plot()
 
+one_year_weekly_covid_data = get_data_for_comparison(weekly_covid_data)
+#vector_data = make_vector(X_predict)
+print("VECTOR")
+vector_data_compare = make_vector(X_compare)
+print(len(vector_data_compare))
+print("Weekly covid array")
 #Y_predict = ewls(vector_data, len(X_predict.index), len(KEYWORDS), weekly_covid_array) # ----> COUNT ROWS AFTER
-Y_compare = ewls(vector_data_compare, len(X_compare.index), len(KEYWORDS), weekly_covid_array)
+Y_compare = ewls(vector_data_compare, len(X_compare.index), len(KEYWORDS), one_year_weekly_covid_data_array)
 
 # realtime_mode True = realtime False = according to CSV
 # Y_predict_dataframe = predict_dataframe(Y_predict, True)
 Y_compare_dataframe = predict_dataframe(Y_compare, False)
 
-one_year_weekly_covid_data = get_data_for_comparison(weekly_covid_data)
+
 
 # print(one_year_weekly_covid_data)
 # print(len(one_year_weekly_covid_data))
-print(Y_compare_dataframe)
+# print(Y_compare_dataframe)
 print(len(Y_compare_dataframe.index))
+print(len(one_year_weekly_covid_data_array))
 
 plt.figure()
 plt.plot(Y_compare_dataframe)
