@@ -54,23 +54,28 @@ def ewls(data, t, word_count, y_data):
     Y_array = np.nan_to_num(Y_array, nan=0.0)
     return Y_array
 
-def stationary_wls(data, t, word_count, y_data):
-    j = 0 
+def stationary_ls(data, t, word_count, y_data):
+    j = 0
+    least_squares = 0
     Y = [[]]
     R = 0
     p = 0
     Y_array = []
-
+    
     for i in range(ORDER - 1, t):
+        prog_arx = arx(y_data, i , data, word_count, j)
+        print("NEW REGRESSORS")
+        for regressor in prog_arx:
+            print(regressor)
         R += arx(y_data, i , data, word_count, j) @ arx(y_data, i, data, word_count, j).T
         p += y_data[j - 1] * arx(y_data, i, data, word_count, j)
 
-        if np.linalg.det(R) != 0:
-            wls_estimator = np.linalg.inv(R) @ p
-            Y = arx(y_data, i, data, word_count, j).T @ wls_estimator
-            Y_array.append(Y[0][0])
-        else:
-            Y_array.append(np.mean(Y_array))
+        # if np.linalg.det(R) != 0:
+        #    wls_estimator = np.linalg.inv(R) @ p
+        #    least_squares += (y_data[j] - arx(y_data, i, data, word_count, j).T @ wls_estimator) ** 2
+        #     Y_array.append(Y[0][0])
+        # else:
+        #     Y_array.append(np.mean(Y_array))
         
         j += 1
     
