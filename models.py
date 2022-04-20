@@ -13,7 +13,7 @@ def make_vector(dataframe):
 
     for i in range(len(dataframe.values)):
         for column in range(len(dataframe.columns)):
-            print(numpy_array[i][column])
+            #print(numpy_array[i][column])
             vector_data.append(numpy_array[i][column])
     
     return np.array(vector_data, dtype='float')
@@ -63,8 +63,7 @@ def progressive_arx(y, u, data, word_count, y_index, prog_order):
 
     if prog_order >= AR_ORDER:
         form.append([data[u - word_count - prog_order + AR_ORDER]])
-    
-    print(form)
+
     return np.array(form, dtype='float')
 
 def stationary_ls(data, t, word_count, y_data):
@@ -89,13 +88,13 @@ def stationary_ls(data, t, word_count, y_data):
             else:
                 Y_array.append(np.mean(Y_array))
 
-            epsilon += (y_data[j - 1] - Y_array[j - 1]) ** 2
+            epsilon += (y_data[j] - Y_array[j]) ** 2
 
-        if j < len(y_data) - 1:
-            j += 1
-    
-    Y_array = np.nan_to_num(Y_array, nan=0.0)
-    return Y_array
+            if j < len(y_data) - 1:
+                j += 1
+        
+        Y_array = np.nan_to_num(Y_array, nan=0.0)
+        return Y_array
 
 def akaike_fpe():
     pass
