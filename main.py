@@ -5,7 +5,7 @@ from datetime import date, timedelta, datetime
 
 from api_request import GoogleRequests
 from filter_data import correlation_filter
-from models import ewls, make_vector, stationary_ls, stationary_ls1
+from models import ewls, make_vector, stationary_ls
 from process_data import convert_to_weekly, get_data_for_comparison, get_mean_from_csv, predict_dataframe
 
 plt.style.use('ggplot')
@@ -83,8 +83,8 @@ Y_compare = ewls(vector_data_compare, len(X_compare.index), len(KEYWORDS), one_y
 Y_compare_dataframe = predict_dataframe(Y_compare, False)
 
 print("stationary ls")
-#Y_stationary_ls = stationary_ls1(vector_data_compare, len(X_compare.index), len(KEYWORDS), one_year_weekly_covid_data_array)
-#Y_stationary_ls_dataframe = predict_dataframe(Y_stationary_ls, False)
+Y_stationary_ls = stationary_ls(vector_data_compare, len(X_compare.index), len(KEYWORDS), one_year_weekly_covid_data_array)
+Y_stationary_ls_dataframe = predict_dataframe(Y_stationary_ls, False)
 # print(one_year_weekly_covid_data)
 # print(len(one_year_weekly_covid_data))
 # print(Y_compare_dataframe)
@@ -92,7 +92,7 @@ print(len(Y_compare_dataframe.index))
 print(len(one_year_weekly_covid_data_array))
 
 plt.figure()
-#plt.plot(Y_stationary_ls_dataframe)
+plt.plot(Y_stationary_ls_dataframe)
 plt.plot(Y_compare_dataframe)
 plt.plot(one_year_weekly_covid_data)
 plt.show()
