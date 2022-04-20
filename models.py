@@ -58,27 +58,26 @@ def ewls(data, t, word_count, y_data):
 def progressive_arx(y, u, data, word_count, y_index, prog_order):
     form = []
     
-    if prog_order <= AR_ORDER:
-        for j in range(AR_ORDER):
-            form.append([y[y_index - j - 1 - prog_order]])
-            print("Prog order for AR", prog_order)
+    if prog_order < AR_ORDER:
+        form.append([y[y_index - 1 - prog_order]])
 
-    if prog_order > AR_ORDER:
-        for i in range(ORDER * word_count):
-            form.append([data[u - i - word_count - prog_order]])
-            print("U prog", prog_order)
+    if prog_order >= AR_ORDER:
+        form.append([data[u - word_count - prog_order + AR_ORDER]])
     
+    print(form)
     return np.array(form, dtype='float')
 
 def stationary_ls(data, t, word_count, y_data):
     j = 0
     Y = [[]]
     Y_array = []
+    prog_arx_arr = []
     
     for prog_order in range(ORDER * word_count + AR_ORDER):
         epsilon = 0
         R = 0
         p = 0
+
         for i in range(ORDER - 1, t):
             R += progressive_arx(y_data, i, data, word_count, j, prog_order) @ progressive_arx(y_data, i, data, word_count, j, prog_order).T
             p += y_data[j] * progressive_arx(y_data, i, data, word_count, j, prog_order)
