@@ -5,7 +5,7 @@ import pandas as pd
 
 # 4
 ORDER = 3
-AR_ORDER = 1
+AR_ORDER = 2
 
 def make_vector(dataframe):
     numpy_array = dataframe.to_numpy()
@@ -34,23 +34,22 @@ def ewls(data, t, word_count, y_data):
     Y = [[]]
     R = 0
     p = 0
-    exp_lambda = 0.9
+    exp_lambda = 0.99
     Y_array = []
 
     for i in range(ORDER - 1, t):
         w = pow(exp_lambda, i)
         R += w * arx(y_data, i, data, word_count, j) @ arx(y_data, i, data, word_count, j).T
         p += w * y_data[j] * arx(y_data, i, data, word_count, j)
-
+        print("NEW J", j)
         if np.linalg.det(R) != 0:
             ewls_estimator = np.linalg.inv(R) @ p
             Y = arx(y_data, i, data, word_count, j).T @ ewls_estimator
             Y_array.append(Y[0][0])
         else:
             Y_array.append(np.mean(Y_array))
-        
-        if j < len(y_data) - 1:
-            j += 1
+
+        j += 1
 
     Y_array = np.nan_to_num(Y_array, nan=0.0)
     return Y_array

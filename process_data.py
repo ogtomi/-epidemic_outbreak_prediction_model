@@ -79,7 +79,7 @@ def predict_dataframe(values, realtime_mode):
 
 def get_data_for_comparison(df):
     next_date = datetime.strptime("2022-02-27", "%Y-%m-%d").date()
-    past_date = next_date - timedelta(days=365)
+    past_date = next_date - timedelta(days=372)
 
     comparable_df = df.loc[str(past_date):]
     
