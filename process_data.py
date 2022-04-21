@@ -57,14 +57,18 @@ def plot_result(X, y, X_test, y_pred):
     plt.scatter(x=list(range(len(X_test))), y=y_pred, color="red")
     plt.show()
 
-def predict_dataframe(values, realtime_mode):
-    if realtime_mode == True:
+def predict_dataframe(values, mode, model_order):
+    if mode == 0:
         next_date = date.today() + timedelta(days= 7)
         past_date = next_date - timedelta(days=365)
     
-    else:
+    if mode == 1:
         next_date = datetime.strptime("2022-02-27", "%Y-%m-%d").date()
         past_date = next_date - timedelta(days=365)
+    
+    if mode == 2:
+        past_date = datetime.strptime("2020-01-20", "%Y-%m-%d").date()
+        #past_date = start_date_csv + timedelta(days=model_order * 7)
 
     idx = pd.date_range(past_date, periods=len(values), freq="W")
     datetime_series = pd.Series(range(len(idx)), index=idx)
@@ -77,11 +81,16 @@ def predict_dataframe(values, realtime_mode):
 
     return df
 
-def get_data_for_comparison(df):
-    next_date = datetime.strptime("2022-02-27", "%Y-%m-%d").date()
-    past_date = next_date - timedelta(days=372)
-
-    comparable_df = df.loc[str(past_date):]
+def get_data_for_comparison(df, mode, model_order):
+    if mode == 1:
+        next_date = datetime.strptime("2022-02-27", "%Y-%m-%d").date()
+        past_date = next_date - timedelta(days=372)
+    
+    if mode == 0:
+        past_date = datetime.strptime("2020-01-20", "%Y-%m-%d").date()
+        next_date = past_date + timedelta(days=372)
+        print(past_date)
+    comparable_df = df.loc[str(past_date):str(next_date)]
     
     return comparable_df
 
