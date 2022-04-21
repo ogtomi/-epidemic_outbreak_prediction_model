@@ -12,10 +12,6 @@ def get_mean_from_csv(PATH_TO_FILE):
     average_column = data.mean(axis=0).to_frame()
     average_column = average_column.diff()
     
-    # print(average_column)
-    # plt.figure()
-    # average_column.plot()
-    # plt.show()
     return average_column
 
 def convert_to_weekly(data):
@@ -30,9 +26,6 @@ def convert_to_weekly(data):
     data_weekly = data_modified.resample('W-mon', label='left', closed='left', on='date', loffset=offset).mean()
     data_weekly.drop(index=('2020-01-19'), inplace=True)
 
-    # plt.figure()
-    # data_weekly.plot()
-    # plt.show()
     return data_weekly
 
 def preprocess_data(df, y_col):
@@ -42,21 +35,14 @@ def preprocess_data(df, y_col):
 
     if y_col in df.columns:
         X = df.drop(y_col, axis=1) # splitting data into X and y
-        X = sc.fit_transform(X) # scaling by removing the mean and dividing by standard deviation so that there's no feature bias
+        # X = sc.fit_transform(X) # scaling by removing the mean and dividing by standard deviation so that there's no feature bias
         y = df[y_col]
 
         return X, y
     
     return sc.fit_transform(df)
 
-    #X = shuffle(X)
-
-def plot_result(X, y, X_test, y_pred):
-    plt.figure()
-    plt.scatter(x=list(range(len(X))), y=y, color="blue")
-    plt.scatter(x=list(range(len(X_test))), y=y_pred, color="red")
-    plt.show()
-
+# APPEND DATA FROM VALUES INTO DATAFRAME
 def predict_dataframe(values, mode, model_order):
     if mode == 0:
         next_date = date.today() + timedelta(days= 7)
@@ -68,7 +54,6 @@ def predict_dataframe(values, mode, model_order):
     
     if mode == 2:
         past_date = datetime.strptime("2020-01-20", "%Y-%m-%d").date()
-        #past_date = start_date_csv + timedelta(days=model_order * 7)
 
     idx = pd.date_range(past_date, periods=len(values), freq="W")
     datetime_series = pd.Series(range(len(idx)), index=idx)
@@ -81,6 +66,7 @@ def predict_dataframe(values, mode, model_order):
 
     return df
 
+# GET DATA FROM DATAFRAME
 def get_data_for_comparison(df, mode, model_order):
     if mode == 1:
         next_date = datetime.strptime("2022-02-27", "%Y-%m-%d").date()
@@ -89,8 +75,7 @@ def get_data_for_comparison(df, mode, model_order):
     if mode == 0:
         past_date = datetime.strptime("2020-01-20", "%Y-%m-%d").date()
         next_date = past_date + timedelta(days=372)
-        print(past_date)
+
     comparable_df = df.loc[str(past_date):str(next_date)]
     
     return comparable_df
-

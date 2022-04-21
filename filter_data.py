@@ -24,6 +24,3 @@ def correlation_filter(data, keywords):
     plt.show()
 
     return data
-
-
-    
