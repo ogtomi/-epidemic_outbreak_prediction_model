@@ -41,7 +41,7 @@ def ewls(data, t, word_count, y_data):
         w = pow(exp_lambda, i)
         R += w * arx(y_data, i, data, word_count, j) @ arx(y_data, i, data, word_count, j).T
         p += w * y_data[j] * arx(y_data, i, data, word_count, j)
-        print("NEW J", j)
+
         if np.linalg.det(R) != 0:
             ewls_estimator = np.linalg.inv(R) @ p
             Y = arx(y_data, i, data, word_count, j).T @ ewls_estimator
@@ -52,6 +52,27 @@ def ewls(data, t, word_count, y_data):
         j += 1
 
     Y_array = np.nan_to_num(Y_array, nan=0.0)
+    return Y_array
+
+def ls(data, t, word_count, y_data):
+    j = 0
+    R = 0
+    p = 0
+    Y_array = []
+
+    for i in range(ORDER - 1, t):
+        R += arx(y_data, i, data, word_count, j) @ arx(y_data, i, data, word_count, j).T
+        p += y_data[j] * arx(y_data, i, data, word_count, j)
+        j += 1
+    if np.linalg.det(R) != 0:
+        ls_estimator = np.linalg.inv(R) @ p
+
+    m = 0
+    for k in range(ORDER - 1, t):
+        Y = arx(y_data, k, data, word_count, m).T @ ls_estimator
+        Y_array.append(Y[0][0])
+        m += 1
+
     return Y_array
 
 def progressive_arx(y, u, data, word_count, y_index, prog_order):
