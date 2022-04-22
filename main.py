@@ -5,21 +5,21 @@ from datetime import date, timedelta, datetime
 
 from api_request import GoogleRequests
 from filter_data import correlation_filter
-from models import AR_ORDER, ls_est, make_vector, ls
-from process_data import convert_to_weekly, get_data_for_comparison, get_mean_from_csv, predict_dataframe
+from models import ls_est, ls
+from process_data import convert_to_weekly, get_data_for_comparison, get_mean_from_csv, predict_dataframe, make_vector
 
 plt.style.use('ggplot')
 
-MODEL_ORDER = 1
+ORDER = 1
 AR_ORDER = 5
 
 def get_anchortime(get_time):
     if get_time == 0:
-        return "2020-01-20 2022-02-28"
+        return "2020-01-19 2022-02-27"
 
     if get_time == 1:
         last_date = datetime.strptime("2022-02-27" , "%Y-%m-%d").date()
-        first_date = last_date - timedelta(days=MODEL_ORDER * 7 + 365)
+        first_date = last_date - timedelta(days=365 + ORDER * 7)
         return str(first_date) + " " + str(last_date)
     
     if get_time == 2:
@@ -29,9 +29,8 @@ def get_anchortime(get_time):
         return anchor_time
     
     if get_time == 3:
-        start_date_csv = datetime.strptime("2020-01-20", "%Y-%m-%d").date()
-        first_date = start_date_csv + timedelta(MODEL_ORDER * 7)
-        last_date = first_date + timedelta(days=365)
+        first_date = datetime.strptime("2020-01-26", "%Y-%m-%d").date()
+        last_date = first_date + timedelta(days=365 + ORDER * 7)
         return str(first_date) + " " + str(last_date)
 
 COUNTRY = "united states"
@@ -60,10 +59,16 @@ weekly_covid_array = weekly_covid_data.to_numpy()
 # GET DATA FROM THE FIRST YEAR OF THE PANDEMIC
 first_year_weekly_covid_data = get_data_for_comparison(weekly_covid_data, 0, AR_ORDER)
 first_year_weekly_covid_data_array = first_year_weekly_covid_data.to_numpy()
+print("First year covid data array len", len(first_year_weekly_covid_data_array))
+print("FIRST YEAR DATA")
+print(first_year_weekly_covid_data)
 
 # GET DATA FROM THE LAST YEAR OF THE PANDEMIC
 last_year_weekly_covid_data = get_data_for_comparison(weekly_covid_data, 1, AR_ORDER)
 last_year_weekly_covid_data_array = last_year_weekly_covid_data.to_numpy()
+print("Last year covid data array len", len(last_year_weekly_covid_data_array))
+print("Last year covid data")
+print(last_year_weekly_covid_data)
 
 # frames = [model_data, weekly_covid_data]
 # result_array = pd.concat(frames, axis=1)
@@ -84,12 +89,33 @@ vector_data_model = make_vector(X_model)
 # GET THE ESTIMATED PARAMETERS
 ls_estimator = ls_est(vector_data_model, len(X_model.index), len(KEYWORDS), first_year_weekly_covid_data_array)
 
-Y_model = ls(vector_data_model, len(X_model.index), len(KEYWORDS), first_year_weekly_covid_data_array, ls_estimator)
-Y_model_dataframe = predict_dataframe(Y_model, 2, MODEL_ORDER)
+Y_model = ls(vector_data_model, len(X_model.index) - ORDER, len(KEYWORDS), first_year_weekly_covid_data_array, ls_estimator)
+Y_model_dataframe = predict_dataframe(Y_model, 2, AR_ORDER)
 
 # PREDICTION
-Y_predict = ls(vector_data_compare, len(X_predict.index), len(KEYWORDS), last_year_weekly_covid_data_array, ls_estimator)
-Y_predict_dataframe = predict_dataframe(Y_predict, 1, MODEL_ORDER)
+Y_predict = ls(vector_data_compare, len(X_predict.index) - ORDER, len(KEYWORDS), last_year_weekly_covid_data_array, ls_estimator)
+Y_predict_dataframe = predict_dataframe(Y_predict, 1, AR_ORDER)
+
+print("DATA FOR MODELLING")
+print(X_model)
+print(len(X_model))
+print("DATA FOR PREDICTION")
+print(X_predict)
+print(len(X_predict))
+print("MODEL DATAFRAME")
+print(Y_model_dataframe)
+print(len(Y_model_dataframe))
+print("PREDICTION DATAFRAME")
+print(Y_predict_dataframe)
+print(len(Y_predict_dataframe))
+# print("Model df index", len(Y_model_dataframe.index))
+# print("Ydata for prediction", (len(vector_data_compare) / len(KEYWORDS)))
+# print("Ydata for model", (len(vector_data_model) / len(KEYWORDS)))
+# print("X_data.index", len(X_predict.index))
+# print("X_model.index", len(X_model.index))
+# print("Predict index", len(Y_predict_dataframe.index))
+# print("ARRAY PREDICT index", len(Y_predict))
+# print("ARRAY model index", len(Y_model))
 
 plt.figure()
 plt.plot(weekly_covid_data, label="Real cases")

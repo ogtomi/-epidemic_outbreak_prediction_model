@@ -31,19 +31,16 @@ def convert_to_weekly(data):
 def preprocess_data(df, y_col):
     df = df.fillna(df.mean()) # fill na / nan values with mean value
 
-    sc = StandardScaler()
-
     if y_col in df.columns:
         X = df.drop(y_col, axis=1) # splitting data into X and y
-        # X = sc.fit_transform(X) # scaling by removing the mean and dividing by standard deviation so that there's no feature bias
         y = df[y_col]
 
         return X, y
     
-    return sc.fit_transform(df)
+    return df 
 
 # APPEND DATA FROM VALUES INTO DATAFRAME
-def predict_dataframe(values, mode, model_order):
+def predict_dataframe(values, mode, ar_order):
     if mode == 0:
         next_date = date.today() + timedelta(days= 7)
         past_date = next_date - timedelta(days=365)
@@ -53,7 +50,8 @@ def predict_dataframe(values, mode, model_order):
         past_date = next_date - timedelta(days=365)
     
     if mode == 2:
-        past_date = datetime.strptime("2020-01-20", "%Y-%m-%d").date()
+        past_date = datetime.strptime("2020-01-26", "%Y-%m-%d").date()
+        past_date = past_date + timedelta(days=7 * ar_order)
 
     idx = pd.date_range(past_date, periods=len(values), freq="W")
     datetime_series = pd.Series(range(len(idx)), index=idx)
@@ -66,16 +64,27 @@ def predict_dataframe(values, mode, model_order):
 
     return df
 
-# GET DATA FROM DATAFRAME
-def get_data_for_comparison(df, mode, model_order):
+# GET CERTAIN DATA FROM DATAFRAME
+def get_data_for_comparison(df, mode, ar_order):
     if mode == 1:
         next_date = datetime.strptime("2022-02-27", "%Y-%m-%d").date()
-        past_date = next_date - timedelta(days=372)
+        past_date = next_date - timedelta(days=365 + 7 * ar_order)
     
     if mode == 0:
-        past_date = datetime.strptime("2020-01-20", "%Y-%m-%d").date()
-        next_date = past_date + timedelta(days=372)
+        past_date = datetime.strptime("2020-01-26", "%Y-%m-%d").date()
+        next_date = past_date + timedelta(days=365 + 7 * ar_order)
 
     comparable_df = df.loc[str(past_date):str(next_date)]
     
     return comparable_df
+
+# MAKE VECTOR OUT OF DATAFRAME DATA
+def make_vector(dataframe):
+    numpy_array = dataframe.to_numpy()
+    vector_data = []
+
+    for i in range(len(dataframe.values)):
+        for column in range(len(dataframe.columns)):
+            vector_data.append(numpy_array[i][column])
+    
+    return np.array(vector_data, dtype='float')
