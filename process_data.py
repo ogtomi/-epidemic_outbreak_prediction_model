@@ -80,11 +80,9 @@ def get_data_for_comparison(df, mode, ar_order):
 
 # MAKE VECTOR OUT OF DATAFRAME DATA
 def make_vector(dataframe):
-    numpy_array = dataframe.to_numpy()
-    vector_data = []
-
-    for i in range(len(dataframe.values)):
-        for column in range(len(dataframe.columns)):
-            vector_data.append(numpy_array[i][column])
+    vector_np_array = np.array([])
     
-    return np.array(vector_data, dtype='float')
+    for column in dataframe.columns:
+        vector_np_array = np.append(vector_np_array, dataframe[column].to_numpy())
+    
+    return vector_np_array

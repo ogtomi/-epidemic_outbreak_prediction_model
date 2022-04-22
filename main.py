@@ -5,7 +5,7 @@ from datetime import date, timedelta, datetime
 
 from api_request import GoogleRequests
 from filter_data import correlation_filter
-from models import ls_est, ls
+from models import ls_ad, ls_est, ls
 from process_data import convert_to_weekly, get_data_for_comparison, get_mean_from_csv, predict_dataframe, make_vector
 
 plt.style.use('ggplot')
@@ -96,6 +96,10 @@ Y_model_dataframe = predict_dataframe(Y_model, 2, AR_ORDER)
 Y_predict = ls(vector_data_compare, len(X_predict.index) - ORDER, len(KEYWORDS), last_year_weekly_covid_data_array, ls_estimator)
 Y_predict_dataframe = predict_dataframe(Y_predict, 1, AR_ORDER)
 
+#AD LS
+Y_ad_predict = ls_ad(vector_data_compare, len(X_predict.index) - ORDER, len(KEYWORDS), last_year_weekly_covid_data_array, ls_estimator)
+Y_ad_predict_dataframe = predict_dataframe(Y_ad_predict, 1, AR_ORDER)
+
 print("DATA FOR MODELLING")
 print(X_model)
 print(len(X_model))
@@ -121,5 +125,6 @@ plt.figure()
 plt.plot(weekly_covid_data, label="Real cases")
 plt.plot(Y_model_dataframe, label="LS model")
 plt.plot(Y_predict_dataframe, label="LS model last year")
+plt.plot(Y_ad_predict_dataframe, label="LS_AD")
 plt.legend()
 plt.show()
