@@ -1,53 +1,43 @@
 import numpy as np
-from regex import P
 
-ORDER = 1
+ORDER = 2
 AR_ORDER = 1
 
-def arx(y, u, data, word_count, y_index):
+def arx(y, u, u_df, y_index):
     form = []
     for j in range(AR_ORDER):
         form.append([y[y_index - j - 1]])
-        print("DATA", y_index - j - 1)
-        print(([y[y_index - j - 1]]))
 
-    # for num in range(word_count * ORDER):
-    #     for i in range(ORDER):
-    #         form.append([data[u - i + num * int(len(data) / word_count)]])
-
-    print("FORM", np.array(form, dtype='float'))
+    for column in u_df.columns:
+        for i in range(ORDER):
+            form.append([u_df[column].values[u - i - 1]])
+    
+    #print("FORM", np.array(form, dtype='float'))
     return np.array(form, dtype='float')
 
-def ls_est(u_df, t, word_count, y_data):
+def ls_est(u_df, t, y_data):
     j = AR_ORDER
-    i = (ORDER * word_count) - word_count
+    i = ORDER
     R = 0
     p = 0
 
     for _ in range(t - 1):
-        print("j", j)
-        #print("i", i + 2)
-        print("Y_data", y_data[j])
-        R += arx(y_data, i, u_df, word_count, j) @ arx(y_data, i, u_df, word_count, j).T
-        p += y_data[j] * arx(y_data, i, u_df, word_count, j)
+        R += arx(y_data, i, u_df, j) @ arx(y_data, i, u_df, j).T
+        p += y_data[j] * arx(y_data, i, u_df, j)
         j += 1
         i += 1
     if np.linalg.det(R) != 0:
-        print("R", R)
-        print("p", p)
         ls_estimator = np.linalg.inv(R) @ p
-    print(ls_estimator)
 
     return ls_estimator
 
-def ls(u_df, t, word_count, y_data, ls_estimator):
+def ls(u_df, t, y_data, ls_estimator):
     j = AR_ORDER
-    i = (ORDER * word_count) - word_count
+    i = ORDER
     Y_array = []
 
     for _ in range(t):
-        print("TIME", j)
-        Y = arx(y_data, i, u_df, word_count, j).T @ ls_estimator
+        Y = arx(y_data, i, u_df, j).T @ ls_estimator
         Y_array.append(Y[0][0])
         j += 1
         i += 1
