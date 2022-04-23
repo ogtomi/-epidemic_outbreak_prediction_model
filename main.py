@@ -11,7 +11,7 @@ from process_data import convert_to_weekly, get_data_for_comparison, get_mean_fr
 plt.style.use('ggplot')
 
 ORDER = 1
-AR_ORDER = 5
+AR_ORDER = 1
 
 def get_anchortime(get_time):
     if get_time == 0:
@@ -49,26 +49,30 @@ compare_requests = GoogleRequests(KEYWORDS, CAT, TIMEFRAMES, COUNTRY, GPROP, ANC
 # predict_requests = GoogleRequests(KEYWORDS, CAT, TIMEFRAMES, COUNTRY, GPROP, ANCHOR_TIME_PREDICT)
 
 # GETTING DATA FROM GOOGLE API AND PROCESSING IT
-# model_data = google_requests.request_window()
+# model_data = model_requests.request_window()
 # model_data = correlation_filter(model_data, KEYWORDS)
 
 covid_data = get_mean_from_csv(PATH_TO_CSV)
+
 weekly_covid_data = convert_to_weekly(covid_data)
 weekly_covid_array = weekly_covid_data.to_numpy()
 
 # GET DATA FROM THE FIRST YEAR OF THE PANDEMIC
 first_year_weekly_covid_data = get_data_for_comparison(weekly_covid_data, 0, AR_ORDER)
-first_year_weekly_covid_data_array = first_year_weekly_covid_data.to_numpy()
-print("First year covid data array len", len(first_year_weekly_covid_data_array))
-print("FIRST YEAR DATA")
-print(first_year_weekly_covid_data)
+first_year_weekly_covid_data_array = make_vector(first_year_weekly_covid_data)
+print("FIRST YEAR WEEKLY COVID DATA ARRAY")
+print(first_year_weekly_covid_data_array)
+
+# print("First year covid data array len", len(first_year_weekly_covid_data_array))
+# print("FIRST YEAR DATA")
+# print(first_year_weekly_covid_data)
 
 # GET DATA FROM THE LAST YEAR OF THE PANDEMIC
 last_year_weekly_covid_data = get_data_for_comparison(weekly_covid_data, 1, AR_ORDER)
-last_year_weekly_covid_data_array = last_year_weekly_covid_data.to_numpy()
-print("Last year covid data array len", len(last_year_weekly_covid_data_array))
-print("Last year covid data")
-print(last_year_weekly_covid_data)
+last_year_weekly_covid_data_array = make_vector(last_year_weekly_covid_data)
+
+print("LAST YEAR WEEKLY COVID DATA ARRAY")
+print(last_year_weekly_covid_data_array)
 
 # frames = [model_data, weekly_covid_data]
 # result_array = pd.concat(frames, axis=1)
@@ -87,44 +91,32 @@ vector_data_compare = make_vector(X_predict)
 vector_data_model = make_vector(X_model)
 
 # GET THE ESTIMATED PARAMETERS
-ls_estimator = ls_est(vector_data_model, len(X_model.index), len(KEYWORDS), first_year_weekly_covid_data_array)
+ls_estimator = ls_est(vector_data_model, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, len(KEYWORDS), first_year_weekly_covid_data_array)
 
-Y_model = ls(vector_data_model, len(X_model.index) - ORDER, len(KEYWORDS), first_year_weekly_covid_data_array, ls_estimator)
-Y_model_dataframe = predict_dataframe(Y_model, 2, AR_ORDER)
+#Y_model = ls(vector_data_model, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, len(KEYWORDS), first_year_weekly_covid_data_array, ls_estimator)
+#Y_model_dataframe = predict_dataframe(Y_model, 2, AR_ORDER)
 
 # PREDICTION
-Y_predict = ls(vector_data_compare, len(X_predict.index) - ORDER, len(KEYWORDS), last_year_weekly_covid_data_array, ls_estimator)
+Y_predict = ls(vector_data_compare, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, len(KEYWORDS), last_year_weekly_covid_data_array, ls_estimator)
 Y_predict_dataframe = predict_dataframe(Y_predict, 1, AR_ORDER)
 
 #AD LS
-Y_ad_predict = ls_ad(vector_data_compare, len(X_predict.index) - ORDER, len(KEYWORDS), last_year_weekly_covid_data_array, ls_estimator)
+Y_ad_predict = ls_ad(vector_data_compare, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, len(KEYWORDS), last_year_weekly_covid_data_array, ls_estimator)
 Y_ad_predict_dataframe = predict_dataframe(Y_ad_predict, 1, AR_ORDER)
 
-print("DATA FOR MODELLING")
-print(X_model)
-print(len(X_model))
-print("DATA FOR PREDICTION")
-print(X_predict)
-print(len(X_predict))
-print("MODEL DATAFRAME")
-print(Y_model_dataframe)
-print(len(Y_model_dataframe))
-print("PREDICTION DATAFRAME")
-print(Y_predict_dataframe)
-print(len(Y_predict_dataframe))
-# print("Model df index", len(Y_model_dataframe.index))
-# print("Ydata for prediction", (len(vector_data_compare) / len(KEYWORDS)))
-# print("Ydata for model", (len(vector_data_model) / len(KEYWORDS)))
-# print("X_data.index", len(X_predict.index))
-# print("X_model.index", len(X_model.index))
-# print("Predict index", len(Y_predict_dataframe.index))
-# print("ARRAY PREDICT index", len(Y_predict))
+print("LEN DATA COVID")
+print(len(last_year_weekly_covid_data_array) - AR_ORDER)
+print("LEN PREDICTED DATA")
+print(len(Y_predict))
 # print("ARRAY model index", len(Y_model))
+make_vector(Y_predict_dataframe)
+make_vector(weekly_covid_data)
 
 plt.figure()
 plt.plot(weekly_covid_data, label="Real cases")
-plt.plot(Y_model_dataframe, label="LS model")
+#plt.plot(Y_model_dataframe, label="LS model")
 plt.plot(Y_predict_dataframe, label="LS model last year")
-plt.plot(Y_ad_predict_dataframe, label="LS_AD")
+# plt.plot(Y_ad_predict_dataframe, label="LS_AD")
+plt.ylim([-50, 350])
 plt.legend()
 plt.show()

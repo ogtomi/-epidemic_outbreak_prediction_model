@@ -1,5 +1,6 @@
 from datetime import timedelta
 from optparse import Values
+from re import I
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -80,9 +81,9 @@ def get_data_for_comparison(df, mode, ar_order):
 
 # MAKE VECTOR OUT OF DATAFRAME DATA
 def make_vector(dataframe):
-    vector_np_array = np.array([])
-    
+    vector_arr = []
     for column in dataframe.columns:
-        vector_np_array = np.append(vector_np_array, dataframe[column].to_numpy())
+        for i in range(len(dataframe[column].values)):
+            vector_arr.append(dataframe[column].values[i])
     
-    return vector_np_array
+    return vector_arr
