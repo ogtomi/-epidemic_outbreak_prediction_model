@@ -74,6 +74,7 @@ def ls_ad(u_df, t, y_data, ls_estimator):
     ls_estimator_array = np.array([])
     err_arr = []
     err = 0
+    Y_all = []
 
     for k in range(max_order):
         for i_reg in indices_arr:
@@ -97,11 +98,11 @@ def ls_ad(u_df, t, y_data, ls_estimator):
             ls_estimator_array = np.delete(ls_estimator_array, -1)
             j = AR_ORDER
             i = ORDER
-            #y_index = 0
+            y_index = 0
             err = 0
-            # if k != max_order - 1:
-            #     Y_array.clear()
-            
+            if k != max_order - 1:
+                Y_array.clear()
+
         print("ERR ARR", err_arr)
         min_val_index = err_arr.index(min(err_arr))
         print("MIN VAL INDEX", min_val_index)
@@ -112,5 +113,6 @@ def ls_ad(u_df, t, y_data, ls_estimator):
             indices_arr.remove(min_val_index)
         
         print("Indices left", indices_arr)
-
+    print("len all signals", len(Y_all))
+    #print("ALL SIGNALS", Y_all[0])
     return Y_array
