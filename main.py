@@ -11,7 +11,7 @@ from process_data import convert_to_weekly, get_data_for_comparison, get_mean_fr
 plt.style.use('ggplot')
 
 ORDER = 1
-AR_ORDER = 3
+AR_ORDER = 2
 
 def get_anchortime(get_time):
     if get_time == 0:
@@ -96,28 +96,26 @@ print(X_predict)
 # GET THE ESTIMATED PARAMETERS
 ls_estimator = ls_est(X_model, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, first_year_weekly_covid_data_array)
 
-#Y_model = ls(X_model, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, len(KEYWORDS), first_year_weekly_covid_data_array, ls_estimator)
-#Y_model_dataframe = predict_dataframe(Y_model, 2, AR_ORDER)
-
+Y_model = ls(X_model, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, first_year_weekly_covid_data_array, ls_estimator)
+Y_model_dataframe = predict_dataframe(Y_model, 2, AR_ORDER)
+print("_______")
 # PREDICTION
-Y_predict = ls(X_predict, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, last_year_weekly_covid_data_array, ls_estimator)
+Y_predict = ls(X_predict, len(last_year_weekly_covid_data_array) - AR_ORDER + 1, last_year_weekly_covid_data_array, ls_estimator)
 Y_predict_dataframe = predict_dataframe(Y_predict, 1, AR_ORDER)
-
+print("_________")
 # AD LS
-Y_ad_predict = ls_ad(X_predict, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, last_year_weekly_covid_data_array, ls_estimator)
+Y_ad_predict = ls_ad(X_predict, len(last_year_weekly_covid_data_array) - AR_ORDER + 1, last_year_weekly_covid_data_array, ls_estimator)
 Y_ad_predict_dataframe = predict_dataframe(Y_ad_predict, 1, AR_ORDER)
 
-print("LEN DATA COVID")
-print(len(last_year_weekly_covid_data_array) - AR_ORDER)
-print("LEN PREDICTED DATA")
-print(len(Y_predict))
-print(len(X_predict.index))
-make_vector(Y_predict_dataframe)
-make_vector(weekly_covid_data)
+# print("LEN DATA COVID")
+# print(len(last_year_weekly_covid_data_array) - AR_ORDER)
+# print("LEN PREDICTED DATA")
+# print(len(Y_predict))
+# print(len(X_predict.index))
 
 plt.figure()
 plt.plot(weekly_covid_data, label="Real cases")
-#plt.plot(Y_model_dataframe, label="LS model")
+plt.plot(Y_model_dataframe, label="LS model")
 plt.plot(Y_predict_dataframe, label="LS model last year")
 plt.plot(Y_ad_predict_dataframe, label="LS_AD")
 plt.ylim([-50, 350])

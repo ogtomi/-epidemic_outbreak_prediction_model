@@ -1,7 +1,7 @@
 import numpy as np
 
 ORDER = 1
-AR_ORDER = 3
+AR_ORDER = 2
 
 def arx(y, u, u_df, y_index):
     form = []
@@ -11,7 +11,7 @@ def arx(y, u, u_df, y_index):
     for column in u_df.columns:
         for i in range(ORDER):
             form.append([u_df[column].values[u - i - 1]])
-    
+
     return np.array(form, dtype='float')
 
 def ls_est(u_df, t, y_data):
@@ -27,6 +27,7 @@ def ls_est(u_df, t, y_data):
         i += 1
     if np.linalg.det(R) != 0:
         ls_estimator = np.linalg.inv(R) @ p
+        print("LS EST", ls_estimator)
 
     return ls_estimator
 
@@ -43,7 +44,7 @@ def ls(u_df, t, y_data, ls_estimator):
     
     return Y_array
 
-def arx_ad(y, u, u_df, y_index, i_reg):
+def arx_ad(y, u, u_df, y_index, i_reg_array):
     form = []
     prog_form = []
 
@@ -54,7 +55,8 @@ def arx_ad(y, u, u_df, y_index, i_reg):
         for i in range(ORDER):
             form.append([u_df[column].values[u - i - 1]])
     
-    prog_form.append(form[i_reg])
+    for i_reg in i_reg_array:
+        prog_form.append(form[i_reg])
     print("Index", i_reg)
     print("FORM", form)
     print("PROG FORM", prog_form)
@@ -64,37 +66,70 @@ def arx_ad(y, u, u_df, y_index, i_reg):
 def ls_ad(u_df, t, y_data, ls_estimator):
     j = AR_ORDER
     i = ORDER
+    y_index = 0
     max_order = AR_ORDER + len(u_df.columns) * ORDER
+    indices_arr = list(range(max_order))
+    print("LEN INDICES ARRAY ", len(indices_arr))
     Y_array = []
+    i_reg_array = []
+    ls_estimator_array = np.array([])
+    err_arr = []
+    err = 0
 
-    for i_reg in range(max_order):
-        for _ in range(t):
-            Y = arx_ad(y_data, i, u_df, j, i_reg).T @ ls_estimator[i_reg]
-            Y_array.append(Y[0][0])
-            j += 1
-            i += 1
-        
-        j = AR_ORDER
-        i = ORDER
-    
+    for k in range(max_order):
+        for i_reg in indices_arr:
+            i_reg_array.append(i_reg)
+            print(ls_estimator[i_reg])
+            #ls_estimator_array.append(ls_estimator[i_reg])
+            ls_estimator_array = np.append(ls_estimator_array, ls_estimator[i_reg])
+            print("OG ESTIMATOR", ls_estimator)
+            print("ESTIMATOR ARRAY", ls_estimator_array)
+            for _ in range(t):
+                Y = arx_ad(y_data, i, u_df, j, i_reg_array).T @ ls_estimator_array
+                Y_array.append(Y[0])
+                
+                if j < len(y_data):
+                    err += y_data[j] - Y_array[y_index]
+                j += 1
+                i += 1
+                y_index += 1
+
+            err_arr.append(err)
+            i_reg_array.pop(-1)
+            #ls_estimator_array.pop(-1)
+            ls_estimator_array = np.delete(ls_estimator_array, -1)
+            j = AR_ORDER
+            i = ORDER
+            y_index = 0
+            # if k != max_order - 1:
+            #     Y_array.clear()
+        print("ERR ARR", err_arr)
+        min_val_index = err_arr.index(min(err_arr))
+        print("MIN VAL INDEX", min_val_index)
+        i_reg_array.append(min_val_index)
+        #ls_estimator_array.append(min_val_index)
+        ls_estimator_array = np.append(ls_estimator_array, ls_estimator[min_val_index])
+        indices_arr.pop(min_val_index)
+        err_arr.clear()
+        print("Indices left", indices_arr)
+    # for i_reg in indices_arr:
+    #         i_reg_array.append(i_reg)
+    #         ls_estimator_array.append(ls_estimator[i_reg])
+    #         for _ in range(t):
+    #             Y = arx_ad(y_data, i, u_df, j, i_reg_array).T @ ls_estimator_array
+    #             Y_array.append(Y[0][0])
+                
+    #             if j < len(y_data):
+    #                 err += y_data[j] - Y_array[y_index]
+    #             j += 1
+    #             i += 1
+    #             y_index += 1
+
+    #         err_arr.append(err)
+    #         i_reg_array.pop(-1)
+    #         ls_estimator_array.pop(-1)
+    #         j = AR_ORDER
+    #         i = ORDER
+    #         y_index = 0
+    print("Y_Array", Y_array)
     return Y_array
-    # coeff_array = np.array([])
-
-    # for index, coeff in enumerate(ls_estimator):
-    #     coeff_array = np.append(coeff_array, coeff)
-    #     for _ in range(t):
-    #         Y = arx_ad(y_data, i, data, word_count, j, index).T @ coeff_array
-    #         #print("Regressors array", regressors_array)
-    #         Y_array.append(Y)
-    #         j += 1
-    #         i += 1
-    #         err += (y_data[j - 1] - Y) ** 2
-        
-    #     coeff_array = np.delete(coeff_array, -1)
-    #     j = AR_ORDER - 1
-    #     i = (ORDER * word_count) - word_count
-    #     err = 0
-    #     #Y_array.clear()
-
-    return Y_array
-        
