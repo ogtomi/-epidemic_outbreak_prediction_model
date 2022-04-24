@@ -69,7 +69,6 @@ def ls_ad(u_df, t, y_data, ls_estimator):
     y_index = 0
     max_order = AR_ORDER + len(u_df.columns) * ORDER
     indices_arr = list(range(max_order))
-    print("LEN INDICES ARRAY ", len(indices_arr))
     Y_array = []
     i_reg_array = []
     ls_estimator_array = np.array([])
@@ -78,9 +77,8 @@ def ls_ad(u_df, t, y_data, ls_estimator):
 
     for k in range(max_order):
         for i_reg in indices_arr:
+            print("START INDICES", indices_arr)
             i_reg_array.append(i_reg)
-            print(ls_estimator[i_reg])
-            #ls_estimator_array.append(ls_estimator[i_reg])
             ls_estimator_array = np.append(ls_estimator_array, ls_estimator[i_reg])
             print("OG ESTIMATOR", ls_estimator)
             print("ESTIMATOR ARRAY", ls_estimator_array)
@@ -96,40 +94,23 @@ def ls_ad(u_df, t, y_data, ls_estimator):
 
             err_arr.append(err)
             i_reg_array.pop(-1)
-            #ls_estimator_array.pop(-1)
             ls_estimator_array = np.delete(ls_estimator_array, -1)
             j = AR_ORDER
             i = ORDER
-            y_index = 0
+            #y_index = 0
+            err = 0
             # if k != max_order - 1:
             #     Y_array.clear()
+            
         print("ERR ARR", err_arr)
         min_val_index = err_arr.index(min(err_arr))
         print("MIN VAL INDEX", min_val_index)
         i_reg_array.append(min_val_index)
-        #ls_estimator_array.append(min_val_index)
         ls_estimator_array = np.append(ls_estimator_array, ls_estimator[min_val_index])
-        indices_arr.pop(min_val_index)
         err_arr.clear()
+        if min_val_index in indices_arr:
+            indices_arr.remove(min_val_index)
+        
         print("Indices left", indices_arr)
-    # for i_reg in indices_arr:
-    #         i_reg_array.append(i_reg)
-    #         ls_estimator_array.append(ls_estimator[i_reg])
-    #         for _ in range(t):
-    #             Y = arx_ad(y_data, i, u_df, j, i_reg_array).T @ ls_estimator_array
-    #             Y_array.append(Y[0][0])
-                
-    #             if j < len(y_data):
-    #                 err += y_data[j] - Y_array[y_index]
-    #             j += 1
-    #             i += 1
-    #             y_index += 1
 
-    #         err_arr.append(err)
-    #         i_reg_array.pop(-1)
-    #         ls_estimator_array.pop(-1)
-    #         j = AR_ORDER
-    #         i = ORDER
-    #         y_index = 0
-    print("Y_Array", Y_array)
     return Y_array
