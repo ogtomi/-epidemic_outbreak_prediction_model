@@ -10,8 +10,8 @@ from process_data import convert_to_weekly, get_data_for_comparison, get_mean_fr
 
 plt.style.use('ggplot')
 
-ORDER = 4
-AR_ORDER = 1
+ORDER = 1
+AR_ORDER = 3
 
 def get_anchortime(get_time):
     if get_time == 0:
@@ -103,9 +103,10 @@ print("_______")
 Y_predict = ls(X_predict, len(last_year_weekly_covid_data_array) - AR_ORDER + 1, last_year_weekly_covid_data_array, ls_estimator)
 Y_predict_dataframe = predict_dataframe(Y_predict, 1, AR_ORDER)
 print("_________")
-# AD LS
-Y_ad_predict = ls_ad(X_predict, len(last_year_weekly_covid_data_array) - AR_ORDER + 1, last_year_weekly_covid_data_array, ls_estimator)
-Y_ad_predict_dataframe = predict_dataframe(Y_ad_predict, 1, AR_ORDER)
+
+# GET ESTIMATED COEFF & MODEL ORDER
+Y_ad_predict = ls_ad(X_model, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, first_year_weekly_covid_data_array)
+#Y_ad_predict_dataframe = predict_dataframe(Y_ad_predict, 1, AR_ORDER)
 
 # print("LEN DATA COVID")
 # print(len(last_year_weekly_covid_data_array) - AR_ORDER)
@@ -117,7 +118,7 @@ plt.figure()
 plt.plot(weekly_covid_data, label="Real cases")
 plt.plot(Y_model_dataframe, label="LS model")
 plt.plot(Y_predict_dataframe, label="LS model last year")
-plt.plot(Y_ad_predict_dataframe, label="LS_AD")
+#plt.plot(Y_ad_predict_dataframe, label="LS_AD")
 plt.ylim([-50, 350])
 plt.legend()
 plt.show()
