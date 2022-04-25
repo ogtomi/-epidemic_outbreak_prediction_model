@@ -5,12 +5,12 @@ from datetime import date, timedelta, datetime
 
 from api_request import GoogleRequests
 from filter_data import correlation_filter
-from models import ls_ad, ls_est, ls
+from models import ls_ad, ls_est, ls, ls_val
 from process_data import convert_to_weekly, get_data_for_comparison, get_mean_from_csv, predict_dataframe, make_vector
 
 plt.style.use('ggplot')
 
-ORDER = 1
+ORDER = 5
 AR_ORDER = 3
 
 def get_anchortime(get_time):
@@ -105,8 +105,10 @@ Y_predict_dataframe = predict_dataframe(Y_predict, 1, AR_ORDER)
 print("_________")
 
 # GET ESTIMATED COEFF & MODEL ORDER
-Y_ad_predict = ls_ad(X_model, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, first_year_weekly_covid_data_array)
-#Y_ad_predict_dataframe = predict_dataframe(Y_ad_predict, 1, AR_ORDER)
+reg_array, ls_estimator_ad = ls_ad(X_model, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, first_year_weekly_covid_data_array)
+
+Y_val_ad = ls_val(X_predict, len(last_year_weekly_covid_data_array) - AR_ORDER + 1, last_year_weekly_covid_data_array, ls_estimator_ad, reg_array)
+Y_val_ad_predict_dataframe = predict_dataframe(Y_val_ad, 1, AR_ORDER)
 
 # print("LEN DATA COVID")
 # print(len(last_year_weekly_covid_data_array) - AR_ORDER)
@@ -115,10 +117,10 @@ Y_ad_predict = ls_ad(X_model, len(first_year_weekly_covid_data_array) - AR_ORDER
 # print(len(X_predict.index))
 
 plt.figure()
-plt.plot(weekly_covid_data, label="Real cases")
-plt.plot(Y_model_dataframe, label="LS model")
-plt.plot(Y_predict_dataframe, label="LS model last year")
-#plt.plot(Y_ad_predict_dataframe, label="LS_AD")
+plt.plot(weekly_covid_data, 'r',label="Rzeczywiste zachorowania")
+#plt.plot(Y_model_dataframe, label="LS model")
+plt.plot(Y_predict_dataframe, 'b',label="Model o pełnym rzędzie")
+plt.plot(Y_val_ad_predict_dataframe, 'y',label="Model adaptacyjny")
 plt.ylim([-50, 350])
 plt.legend()
 plt.show()

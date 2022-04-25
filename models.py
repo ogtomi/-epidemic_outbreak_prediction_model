@@ -1,6 +1,6 @@
 import numpy as np
 
-ORDER = 1
+ORDER = 5
 AR_ORDER = 3
 
 def arx(y, u, u_df, y_index):
@@ -83,7 +83,6 @@ def ls_ad(u_df, t, y_data):
     indices_arr = list(range(max_order))
     Y_array = []
     i_reg_array = []
-    final_reg_array = []
     err_arr = []
     err = 0
     temp_aic = 1000
@@ -92,9 +91,9 @@ def ls_ad(u_df, t, y_data):
         for i_reg in indices_arr:
             i_reg_array.append(i_reg)
             ls_estimator_ad = ls_est_ad(u_df, t, y_data, i_reg_array)
-            print("AD ESTIMATOR", ls_estimator_ad)
-            print("FORM", arx(y_data, i, u_df, j))
-            print("PROG FORM", arx_ad(y_data, i, u_df, j, i_reg_array))
+            #print("AD ESTIMATOR", ls_estimator_ad)
+            #print("FORM", arx(y_data, i, u_df, j))
+            #print("PROG FORM", arx_ad(y_data, i, u_df, j, i_reg_array))
             for _ in range(t):
                 Y = arx_ad(y_data, i, u_df, j, i_reg_array).T @ ls_estimator_ad
                 Y_array.append(Y[0])
@@ -104,7 +103,7 @@ def ls_ad(u_df, t, y_data):
                 j += 1
                 i += 1
                 y_index += 1
-            # zmienić dane na te do uczenia
+
             err_arr.append(err)
             i_reg_array.pop(-1)
             j = AR_ORDER
@@ -126,6 +125,23 @@ def ls_ad(u_df, t, y_data):
             indices_arr.remove(indices_arr[min_val_index])
 
     return i_reg_array, ls_estimator_ad
+
+def ls_val(u_df, t, y_data, ls_estimator_ad, reg_array):
+    j = AR_ORDER
+    i = ORDER
+    Y_array = []
+
+    for _ in range(t):
+        Y = arx_ad(y_data, i, u_df, j, reg_array).T @ ls_estimator_ad
+        print("AD ESTIMATOR", ls_estimator_ad)
+        print("LEN EST", len(ls_estimator_ad))
+        print("FORM", arx(y_data, i, u_df, j))
+        print("PROG FORM", arx_ad(y_data, i, u_df, j, reg_array))
+        Y_array.append(Y[0][0])
+        j += 1
+        i += 1
+    
+    return Y_array
 
 def AIC(N, K, err):
     return N * np.log(err / N) + 2 * (K + 1)
