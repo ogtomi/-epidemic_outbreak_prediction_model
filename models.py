@@ -88,7 +88,7 @@ def ls_ad(u_df, t, y_data, ls_estimator):
                 Y_array.append(Y[0])
                 
                 if j < len(y_data):
-                    err += y_data[j] - Y_array[y_index]
+                    err += pow((y_data[j] - Y_array[y_index]), 2) 
                 j += 1
                 i += 1
                 y_index += 1
@@ -106,13 +106,18 @@ def ls_ad(u_df, t, y_data, ls_estimator):
         print("ERR ARR", err_arr)
         min_val_index = err_arr.index(min(err_arr))
         print("MIN VAL INDEX", min_val_index)
-        i_reg_array.append(min_val_index)
-        ls_estimator_array = np.append(ls_estimator_array, ls_estimator[min_val_index])
+        print("MIN INDEX", indices_arr[min_val_index])
+        print("ESTIMATOR:", ls_estimator[indices_arr[min_val_index]])
+        i_reg_array.append(indices_arr[min_val_index])
+        # ls_estimator = np.delete(ls_estimator, min_val_index)
+        ls_estimator_array = np.append(ls_estimator_array, ls_estimator[indices_arr[min_val_index]])
         err_arr.clear()
-        if min_val_index in indices_arr:
-            indices_arr.remove(min_val_index)
-        
-        print("Indices left", indices_arr)
-    print("len all signals", len(Y_all))
-    #print("ALL SIGNALS", Y_all[0])
+        if indices_arr[min_val_index] in indices_arr:
+            indices_arr.remove(indices_arr[min_val_index])
+    
+    print("OG ESTIMATOR", ls_estimator)
+    print("FINAL ESTIMATOR ARR", ls_estimator_array)
     return Y_array
+
+def AIC():
+    aic = N * np.ln
