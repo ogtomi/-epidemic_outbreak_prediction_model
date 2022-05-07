@@ -1,16 +1,16 @@
 import numpy as np
 
 ORDER = 5
-AR_ORDER = 5
+AR_ORDER = 7
 
 def arx(y, u, u_df, y_index):
     form = []
     for j in range(AR_ORDER):
         form.append([y[y_index - j - 1]])
 
-    # for column in u_df.columns:
-    #     for i in range(ORDER):
-    #         form.append([u_df[column].values[u - i - 1]])
+    for column in u_df.columns:
+        for i in range(ORDER):
+            form.append([u_df[column].values[u - i - 1]])
 
     return np.array(form, dtype='float')
 
@@ -121,17 +121,24 @@ def ls_ad(u_df, t, y_data):
             Y_array.clear()
 
         min_val_index = err_arr.index(min(err_arr))
-        i_reg_array.append(indices_arr[min_val_index])
         aic = AIC(t, len(ls_estimator_ad), err_arr[min_val_index])
+        print("AIC", aic)
+
         if aic > temp_aic:
-            #print("FINAL REG ARRAY", i_reg_array)
-            #print("FINAL EST ARR", ls_estimator_ad)
-            return i_reg_array, ls_estimator_ad
+            print("FINAL REG ARRAY", i_reg_array)
+            print("ORDER OF MODEL", len(i_reg_array))
+            print("FINAL EST ARR", ls_estimator_ad)
+            return i_reg_array, ls_estimator_prev
+
+        ls_estimator_prev = ls_estimator_ad
+        i_reg_array.append(indices_arr[min_val_index])
         temp_aic = aic
         err_arr.clear()
+
         if indices_arr[min_val_index] in indices_arr:
             indices_arr.remove(indices_arr[min_val_index])
 
+    print("REG INDEX", i_reg_array)
     return i_reg_array, ls_estimator_ad
 
 def ls_val(u_df, t, y_data, ls_estimator_ad, reg_array):
@@ -144,7 +151,7 @@ def ls_val(u_df, t, y_data, ls_estimator_ad, reg_array):
     for _ in range(t):
         Y = arx_ad(y_data, i, u_df, j, reg_array).T @ ls_estimator_ad
         # print("AD ESTIMATOR", ls_estimator_ad)
-        print("LEN EST", len(ls_estimator_ad))
+        # print("LEN EST", len(ls_estimator_ad))
         # print("FORM", arx(y_data, i, u_df, j))
         # print("PROG FORM", arx_ad(y_data, i, u_df, j, reg_array))
         Y_array.append(Y[0][0])
