@@ -1,7 +1,7 @@
 import numpy as np
 
-ORDER = 5
-AR_ORDER = 7
+ORDER = 1
+AR_ORDER = 3
 
 def arx(y, u, u_df, y_index):
     form = []
@@ -49,6 +49,7 @@ def ls(u_df, t, y_data, ls_estimator):
         y_index += 1
     
     print("ERR: ",  err)
+    
     return Y_array
 
 def arx_ad(y, u, u_df, y_index, i_reg_array):
@@ -121,13 +122,13 @@ def ls_ad(u_df, t, y_data):
             Y_array.clear()
 
         min_val_index = err_arr.index(min(err_arr))
-        aic = AIC(t, len(ls_estimator_ad), err_arr[min_val_index])
+        aic = AIC(t - 1, len(ls_estimator_ad), err_arr[min_val_index])
         print("AIC", aic)
-
         if aic > temp_aic:
             print("FINAL REG ARRAY", i_reg_array)
             print("ORDER OF MODEL", len(i_reg_array))
-            print("FINAL EST ARR", ls_estimator_ad)
+            print("FINAL EST ARR", ls_estimator_prev)
+            print("AIC", aic)
             return i_reg_array, ls_estimator_prev
 
         ls_estimator_prev = ls_estimator_ad
