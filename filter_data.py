@@ -6,9 +6,9 @@ THRESHOLD = 0.4
 
 def correlation_filter(data, keywords):
     corr = data.corr()
-    
+    x = corr[keywords]
     plt.figure(figsize=(15,10))
-    sns.heatmap(corr, annot=False)
+    sns.heatmap(x, annot=True)
     plt.show()
 
     for column in corr[keywords]:
@@ -18,9 +18,9 @@ def correlation_filter(data, keywords):
                 data.drop(name, axis='columns', inplace=True)
     
     corr = data.corr()
-    
+    x = corr[keywords]
     plt.figure(figsize=(15,10))
-    sns.heatmap(corr, annot=True)
+    sns.heatmap(x, annot=True)
     plt.show()
 
     return data
