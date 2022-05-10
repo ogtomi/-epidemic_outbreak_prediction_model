@@ -95,23 +95,27 @@ vector_data_model = make_vector(X_model)
 # print("X_PREDICT")
 # print(X_predict)
 # GET THE ESTIMATED PARAMETERS
+# data from the first year
 ls_estimator = ls_est(X_model, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, first_year_weekly_covid_data_array)
 
 #Y_model = ls(X_model, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, first_year_weekly_covid_data_array, ls_estimator)
 #Y_model_dataframe = predict_dataframe(Y_model, 2, AR_ORDER)
 #print("_______")
 # AIC FOR STATIONARY LS
-#print("AIC FOR LS:")
-#Y_predict = ls(X_model, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, first_year_weekly_covid_data_array, ls_estimator)
+print("AIC FOR LS:")
+Y_predict = ls(X_model, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, first_year_weekly_covid_data_array, ls_estimator)
 # PREDICTION
-#print("THE ONE ABOVE")
+print("THE ONE ABOVE")
+# data from the last year
 Y_predict = ls(X_predict, len(last_year_weekly_covid_data_array) - AR_ORDER + 1, last_year_weekly_covid_data_array, ls_estimator)
 Y_predict_dataframe = predict_dataframe(Y_predict, 1, AR_ORDER)
 #print("_________")
 
 # GET ESTIMATED COEFF & MODEL ORDER
+# data from the first year
 reg_array, ls_estimator_ad = ls_ad(X_model, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, first_year_weekly_covid_data_array)
 
+# data from the last year
 Y_val_ad = ls_val(X_predict, len(last_year_weekly_covid_data_array) - AR_ORDER + 1, last_year_weekly_covid_data_array, ls_estimator_ad, reg_array)
 Y_val_ad_predict_dataframe = predict_dataframe(Y_val_ad, 1, AR_ORDER)
 

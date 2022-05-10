@@ -101,21 +101,21 @@ def ls_ad(u_df, t, y_data):
     i = ORDER
     y_index = 0
     max_order = AR_ORDER + len(u_df.columns) * ORDER
-    indices_arr = list(range(max_order)) # start with array representing regressors position
+    indices_arr = list(range(AR_ORDER, max_order)) # start with array representing regressors position
     Y_array = []
-    i_reg_array = []
+    i_reg_array = list(range(AR_ORDER))
     err_arr = []
     err = 0
     temp_aic = 1000
 
     # limits max order
-    for k in range(max_order):
+    for k in range(AR_ORDER, max_order):
         # limits possible indices
         for i_reg in indices_arr:                                                   # 1. take one regressor
             i_reg_array.append(i_reg)
-            ls_estimator_ad = ls_est_ad(u_df, t, y_data, i_reg_array)               # 2. estimate parameter
+            ls_estimator_ad = ls_est_ad(u_df, t, y_data, i_reg_array)               # 2. estimate parameters
             #print("AD ESTIMATOR", ls_estimator_ad)
-            print(u_df)
+            #print(u_df)
             print("FORM", arx(y_data, i, u_df, j))
             print("PROG FORM", arx_ad(y_data, i, u_df, j, i_reg_array))
             print("ARRAY INDICES", i_reg_array)
