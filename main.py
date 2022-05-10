@@ -35,6 +35,7 @@ def get_anchortime(get_time):
 
 COUNTRY = "united states"
 KEYWORDS = ['nausea', 'fatigue', 'headache', 'muscle aches', 'diarrhea']
+#KEYWORDS = ['nausea', 'fatigue']
 CAT = '0'
 TIMEFRAMES = ['today 12-m', 'today 3-m', 'today 1-m']
 GPROP = ''
@@ -99,7 +100,11 @@ ls_estimator = ls_est(X_model, len(first_year_weekly_covid_data_array) - AR_ORDE
 #Y_model = ls(X_model, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, first_year_weekly_covid_data_array, ls_estimator)
 #Y_model_dataframe = predict_dataframe(Y_model, 2, AR_ORDER)
 #print("_______")
+# AIC FOR STATIONARY LS
+#print("AIC FOR LS:")
+#Y_predict = ls(X_model, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, first_year_weekly_covid_data_array, ls_estimator)
 # PREDICTION
+#print("THE ONE ABOVE")
 Y_predict = ls(X_predict, len(last_year_weekly_covid_data_array) - AR_ORDER + 1, last_year_weekly_covid_data_array, ls_estimator)
 Y_predict_dataframe = predict_dataframe(Y_predict, 1, AR_ORDER)
 #print("_________")
