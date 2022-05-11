@@ -1,7 +1,7 @@
 import numpy as np
 
 ORDER = 1
-AR_ORDER = 3
+AR_ORDER = 4
 
 # STATIONARY BASIC MODEL
 def arx(y, u, u_df, y_index):
@@ -45,15 +45,16 @@ def ls(u_df, t, y_data, ls_estimator):
     for _ in range(t):
         Y = arx(y_data, i, u_df, j).T @ ls_estimator    # multiply regressors @ estimated in ls_est values
         Y_array.append(Y[0][0])
-        j += 1
+    
         i += 1
 
         if j < len(y_data):
             # PREDICTION ERROR IS COUNTED IN EACH STEP
             err += pow((y_data[j] - Y_array[y_index]), 2)
 
-        y_index += 1    # y_index is incremented after counting error so the real probes and estimated
-                        # ones are in the same time when counting err
+        j += 1
+        y_index += 1
+
     print("ERR: ",  err)
     aic = AIC(t - 1, len(ls_estimator), err)
     print("AIC: ", aic)
@@ -114,21 +115,18 @@ def ls_ad(u_df, t, y_data):
         for i_reg in indices_arr:                                                   # 1. take one regressor
             i_reg_array.append(i_reg)
             ls_estimator_ad = ls_est_ad(u_df, t, y_data, i_reg_array)               # 2. estimate parameters
-            #print("AD ESTIMATOR", ls_estimator_ad)
-            #print(u_df)
-            print("FORM", arx(y_data, i, u_df, j))
-            print("PROG FORM", arx_ad(y_data, i, u_df, j, i_reg_array))
-            print("ARRAY INDICES", i_reg_array)
 
             # estimation of values
             for _ in range(t):                                                      # 3. Predict signal
                 Y = arx_ad(y_data, i, u_df, j, i_reg_array).T @ ls_estimator_ad
                 Y_array.append(Y[0])
-                
+
+                i += 1
+
                 if j < len(y_data):
                     err += pow((y_data[j] - Y_array[y_index]), 2)                   # 4. Count estimation error
+                
                 j += 1
-                i += 1
                 y_index += 1
 
             err_arr.append(err)                                                     # 5. For all cases in specific order append the sum of errors to array
@@ -170,18 +168,16 @@ def ls_val(u_df, t, y_data, ls_estimator_ad, reg_array):
 
     for _ in range(t):
         Y = arx_ad(y_data, i, u_df, j, reg_array).T @ ls_estimator_ad # take values from time probes defined in reg_array
-        # print("AD ESTIMATOR", ls_estimator_ad)                      # obtained in ls_ad
-        # print("LEN EST", len(ls_estimator_ad))
-        # print("FORM", arx(y_data, i, u_df, j))
-        # print("PROG FORM", arx_ad(y_data, i, u_df, j, reg_array))
-        Y_array.append(Y[0][0])
-        j += 1
+        Y_array.append(Y[0][0])                                       # obtained in ls_ad
+        
         i += 1
 
         if j < len(y_data):
             err += pow((y_data[j] - Y_array[y_index]), 2)  # prediction error
         
+        j += 1
         y_index += 1
+
     print("AD ERR", err)
     return Y_array
 
