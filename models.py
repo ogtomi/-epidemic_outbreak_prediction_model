@@ -1,7 +1,7 @@
 import numpy as np
 
 ORDER = 1
-AR_ORDER = 4
+AR_ORDER = 10
 
 # STATIONARY BASIC MODEL
 def arx(y, u, u_df, y_index):

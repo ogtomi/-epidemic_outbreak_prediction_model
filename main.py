@@ -11,7 +11,7 @@ from process_data import convert_to_weekly, get_data_for_comparison, get_mean_fr
 plt.style.use('ggplot')
 
 ORDER = 1
-AR_ORDER = 4
+AR_ORDER = 10
 
 def get_anchortime(get_time):
     if get_time == 0:
