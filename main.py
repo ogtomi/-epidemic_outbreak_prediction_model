@@ -5,7 +5,7 @@ from datetime import date, timedelta, datetime
 
 from api_request import GoogleRequests
 from filter_data import correlation_filter
-from models import ls_ad, ls_diff, ls_est, ls, ls_val
+from models import ls_ad, ls_est, ls, ls_val
 from process_data import convert_to_weekly, get_data_for_comparison, get_mean_from_csv, predict_dataframe, make_vector
 
 plt.style.use('ggplot')
@@ -104,11 +104,11 @@ Y_predict = ls(X_model, len(first_year_weekly_covid_data_array) - AR_ORDER + 1, 
 # PREDICTION
 print("THE ONE ABOVE")
 # data from the last year
-Y_predict = ls(X_predict, len(last_year_weekly_covid_data_array) - AR_ORDER + 1, last_year_weekly_covid_data_array, ls_estimator)
+Y_predict = ls(X_predict, len(last_year_weekly_covid_data_array) - AR_ORDER + 1, last_year_weekly_covid_data_array, ls_estimator, 0, last_year_weekly_covid_data_array)
 Y_predict_dataframe = predict_dataframe(Y_predict, 1, AR_ORDER)
 
 print("DIFF MODEL:")
-Y_predict_diff = ls_diff(X_predict, len(last_year_weekly_covid_data_diff_array) - AR_ORDER + 1, last_year_weekly_covid_data_diff_array, ls_estimator_diff, last_year_weekly_covid_data_array)
+Y_predict_diff = ls(X_predict, len(last_year_weekly_covid_data_diff_array) - AR_ORDER + 1, last_year_weekly_covid_data_diff_array, ls_estimator_diff, 1, last_year_weekly_covid_data_array)
 Y_predict_diff_datafrmae = predict_dataframe(Y_predict_diff, 1, AR_ORDER)
 
 # GET ESTIMATED COEFF & MODEL ORDER

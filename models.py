@@ -35,7 +35,7 @@ def ls_est(u_df, t, y_data):
     return ls_estimator
 
 # FUNCTION COUNTING VALUES FROM STATIONARY LS_ESTIMATOR
-def ls(u_df, t, y_data, ls_estimator):
+def ls(u_df, t, y_data, ls_estimator, diff_bool, y_real_cases):
     j = AR_ORDER
     i = ORDER
     Y_array = []
@@ -44,13 +44,17 @@ def ls(u_df, t, y_data, ls_estimator):
 
     for _ in range(t):
         Y = arx(y_data, i, u_df, j).T @ ls_estimator    # multiply regressors @ estimated in ls_est values
-        Y_array.append(Y[0][0])
+        
+        if diff_bool == False:
+            Y_array.append(Y[0][0])
+        else:
+            Y_array.append(Y[0][0] + y_real_cases[j - 1])
     
         i += 1
 
-        if j < len(y_data):
+        if j < len(y_real_cases):
             # PREDICTION ERROR IS COUNTED IN EACH STEP
-            err += pow((y_data[j] - Y_array[y_index]), 2)
+            err += pow((y_real_cases[j] - Y_array[y_index]), 2)
 
         j += 1
         y_index += 1
@@ -58,32 +62,6 @@ def ls(u_df, t, y_data, ls_estimator):
     print("ERR: ",  err)
     aic = AIC(t - 1, len(ls_estimator), err)
     print("AIC: ", aic)
-    
-    return Y_array
-
-# FUNCTION COUNTING VALUES FROM DIFF LS_ESTIMATOR
-def ls_diff(u_df, t, y_data, ls_estimator, y_real_cases):
-    j = AR_ORDER
-    i = ORDER
-    Y_array = []
-    y_index = 0
-    err = 0
-
-    for _ in range(t):
-        Y = arx(y_data, i, u_df, j).T @ ls_estimator    # multiply regressors @ estimated in ls_est values
-        Y_array.append(Y[0][0] + y_real_cases[j - 1])
-        i += 1
-
-        if j < len(y_data):
-            # PREDICTION ERROR IS COUNTED IN EACH STEP
-            err += pow((y_real_cases[j] - Y_array[y_index]), 2)
-
-        j += 1
-        y_index += 1
-
-    print("ERR DIFF: ",  err)
-    aic = AIC(t - 1, len(ls_estimator), err)
-    print("AIC DIFF: ", aic)
     
     return Y_array
 
@@ -153,7 +131,7 @@ def ls_ad(u_df, t, y_data, diff_bool, y_real_cases):
 
                 i += 1
 
-                if j < len(y_data):
+                if j < len(y_real_cases):
                     err += pow((y_real_cases[j] - Y_array[y_index]), 2)                   # 4. Count estimation error
                 
                 j += 1
@@ -205,7 +183,7 @@ def ls_val(u_df, t, y_data, ls_estimator_ad, reg_array, diff_bool, y_real_cases)
         
         i += 1
 
-        if j < len(y_data):
+        if j < len(y_real_cases):
             err += pow((y_real_cases[j] - Y_array[y_index]), 2)  # prediction error
         
         j += 1
