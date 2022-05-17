@@ -61,6 +61,32 @@ def ls(u_df, t, y_data, ls_estimator):
     
     return Y_array
 
+# FUNCTION COUNTING VALUES FROM DIFF LS_ESTIMATOR
+def ls_diff(u_df, t, y_data, ls_estimator, y_real_cases):
+    j = AR_ORDER
+    i = ORDER
+    Y_array = []
+    y_index = 0
+    err = 0
+
+    for _ in range(t):
+        Y = arx(y_data, i, u_df, j).T @ ls_estimator    # multiply regressors @ estimated in ls_est values
+        Y_array.append(Y[0][0] + y_real_cases[j - 1])
+        i += 1
+
+        if j < len(y_data):
+            # PREDICTION ERROR IS COUNTED IN EACH STEP
+            err += pow((y_real_cases[j] - Y_array[y_index]), 2)
+
+        j += 1
+        y_index += 1
+
+    print("ERR DIFF: ",  err)
+    aic = AIC(t - 1, len(ls_estimator), err)
+    print("AIC DIFF: ", aic)
+    
+    return Y_array
+
 # ADAPTIVE MODEL FORM
 def arx_ad(y, u, u_df, y_index, i_reg_array):
     form = []
@@ -97,20 +123,20 @@ def ls_est_ad(u_df, t, y_data, i_reg_array):
 
     return ls_estimator
 
-def ls_ad(u_df, t, y_data):
+def ls_ad(u_df, t, y_data, diff_bool, y_real_cases):
     j = AR_ORDER
     i = ORDER
     y_index = 0
     max_order = AR_ORDER + len(u_df.columns) * ORDER
-    indices_arr = list(range(AR_ORDER, max_order)) # start with array representing regressors position
+    indices_arr = list(range(max_order)) # start with array representing regressors position
     Y_array = []
-    i_reg_array = list(range(AR_ORDER))
+    i_reg_array = []
     err_arr = []
     err = 0
     temp_aic = 1000
 
     # limits max order
-    for k in range(AR_ORDER, max_order):
+    for k in range(max_order):
         # limits possible indices
         for i_reg in indices_arr:                                                   # 1. take one regressor
             i_reg_array.append(i_reg)
@@ -119,12 +145,16 @@ def ls_ad(u_df, t, y_data):
             # estimation of values
             for _ in range(t):                                                      # 3. Predict signal
                 Y = arx_ad(y_data, i, u_df, j, i_reg_array).T @ ls_estimator_ad
-                Y_array.append(Y[0])
+                
+                if diff_bool == False:
+                    Y_array.append(Y[0])
+                else:
+                    Y_array.append(Y[0] + y_real_cases[j - 1])
 
                 i += 1
 
                 if j < len(y_data):
-                    err += pow((y_data[j] - Y_array[y_index]), 2)                   # 4. Count estimation error
+                    err += pow((y_real_cases[j] - Y_array[y_index]), 2)                   # 4. Count estimation error
                 
                 j += 1
                 y_index += 1
@@ -159,7 +189,7 @@ def ls_ad(u_df, t, y_data):
     return i_reg_array, ls_estimator_ad
 
 # ADAPTIVE MODEL
-def ls_val(u_df, t, y_data, ls_estimator_ad, reg_array):
+def ls_val(u_df, t, y_data, ls_estimator_ad, reg_array, diff_bool, y_real_cases):
     j = AR_ORDER
     i = ORDER
     Y_array = []
@@ -168,12 +198,15 @@ def ls_val(u_df, t, y_data, ls_estimator_ad, reg_array):
 
     for _ in range(t):
         Y = arx_ad(y_data, i, u_df, j, reg_array).T @ ls_estimator_ad # take values from time probes defined in reg_array
-        Y_array.append(Y[0][0])                                       # obtained in ls_ad
+        if diff_bool == False:
+            Y_array.append(Y[0])
+        else:
+            Y_array.append(Y[0] + y_real_cases[j - 1])                                     # obtained in ls_ad
         
         i += 1
 
         if j < len(y_data):
-            err += pow((y_data[j] - Y_array[y_index]), 2)  # prediction error
+            err += pow((y_real_cases[j] - Y_array[y_index]), 2)  # prediction error
         
         j += 1
         y_index += 1
