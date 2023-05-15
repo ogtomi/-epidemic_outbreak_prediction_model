@@ -1,1 +1,1 @@
-System predicting the risk of  new epidemic outbreaks based on internet searches
+System developed to predict the risk of an epidemic outbreak based on internet searches. The system was based on the analysis of the search results from the Google search engine. The data is then further processed so that it can be used as an exogenous input in the autoregressive model.
